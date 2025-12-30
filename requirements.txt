@@ -1,0 +1,25 @@
+# Core dependencies
+pydantic>=2.0.0
+pytest>=7.0.0
+pytest-cov>=4.0.0
+python-dotenv>=1.0.0
+
+# Database
+sqlalchemy>=2.0.0
+
+# OCR (choose one - EasyOCR recommended for local)
+# easyocr>=1.7.0        # Uncomment when ready to use
+# pytesseract>=0.3.10   # Alternative: requires Tesseract installation
+Pillow>=10.0.0          # Image processing
+
+# LLM (Ollama via HTTP)
+requests>=2.31.0
+
+# YOLO Food Recognition
+ultralytics>=8.0.0
+
+# Future dependencies (Phase 3+)
+# fastapi>=0.100.0
+# uvicorn>=0.23.0
+# faiss-cpu>=1.7.4
+# openai-whisper>=20230918

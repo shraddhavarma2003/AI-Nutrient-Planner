@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Nutrition Project - File Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+
+        .project-overview {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+        }
+
+        .project-overview h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .project-overview ul {
+            margin-left: 25px;
+            margin-top: 10px;
+        }
+
+        .project-overview li {
+            margin-bottom: 8px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #764ba2;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #764ba2;
+        }
+
+        .file-group {
+            margin-bottom: 30px;
+        }
+
+        .file-group h3 {
+            color: #667eea;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .file-group h3::before {
+            content: "📁";
+            margin-right: 10px;
+        }
+
+        .file-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .file-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .file-name {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .file-name::before {
+            content: "📄";
+            margin-right: 8px;
+        }
+
+        .file-description {
+            color: #555;
+            margin-left: 28px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            margin-left: 10px;
+            font-weight: normal;
+        }
+
+        .badge-config {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .badge-doc {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .badge-test {
+            background: #28a745;
+            color: white;
+        }
+
+        .badge-data {
+            background: #6c757d;
+            color: white;
+        }
+
+        .badge-model {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .badge-api {
+            background: #4ecdc4;
+            color: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>AI Nutrition Project</h1>
+        <p class="subtitle">Complete File Structure & Purpose Documentation</p>
+
+        <div class="project-overview">
+            <h2>📋 Project Overview</h2>
+            <p><strong>Project Name:</strong> Context-Aware Personalized Nutrition Planner</p>
+            <p><strong>Description:</strong> A healthcare-support system (NOT a medical diagnosis tool) that helps users
+                log meals, track nutrition, and receive personalized guidance based on their health conditions.</p>
+
+            <h3 style="margin-top: 20px; color: #764ba2;">Key Features:</h3>
+            <ul>
+                <li>Multi-modal meal logging (text, image, voice)</li>
+                <li>RAG-powered nutrition lookup from USDA/OpenFoodFacts</li>
+                <li>Medical Safety Engine (allergies, diabetes, hypertension, obesity)</li>
+                <li>Smart meal corrections ("Fix My Meal")</li>
+                <li>Reverse Recipe Generation</li>
+                <li>Context-aware Virtual Coach</li>
+            </ul>
+        </div>
+
+        <!-- ROOT LEVEL FILES -->
+        <div class="section">
+            <h2>🏠 Root Level Configuration Files</h2>
+
+            <div class="file-item">
+                <div class="file-name">README.md <span class="badge badge-doc">DOCUMENTATION</span></div>
+                <div class="file-description">
+                    Main project documentation. Provides an overview of the project, its features, setup instructions,
+                    and important disclaimers about the tool being a healthcare support system (not medical diagnosis).
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">requirements.txt <span class="badge badge-config">CONFIG</span></div>
+                <div class="file-description">
+                    Python dependencies file. Lists all required Python packages including FastAPI, TensorFlow,
+                    Pytesseract, SQLAlchemy, and other libraries needed for the application.
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">Dockerfile <span class="badge badge-config">DOCKER</span></div>
+                <div class="file-description">
+                    Docker containerization configuration. Defines how to build a Docker image for the application,
+                    including base image, dependencies installation, and runtime configuration.
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">docker-compose.yml <span class="badge badge-config">DOCKER</span></div>
+                <div class="file-description">
+                    Docker Compose configuration. Orchestrates multiple containers if needed, defines services,
+                    networks, and volumes for the application deployment.
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">.dockerignore <span class="badge badge-config">CONFIG</span></div>
+                <div class="file-description">
+                    Docker ignore file. Specifies which files and directories should be excluded when building Docker
+                    images (e.g., venv, .git, __pycache__).
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">.env <span class="badge badge-config">CONFIG</span></div>
+                <div class="file-description">
+                    Environment variables file. Contains sensitive configuration data like API keys, database URLs, and
+                    secret keys. <strong>NOT committed to version control.</strong>
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">.env.example <span class="badge badge-config">CONFIG</span></div>
+                <div class="file-description">
+                    Example environment variables template. Shows what environment variables are needed without exposing
+                    actual sensitive values. Safe to commit to version control.
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">pytest.ini <span class="badge badge-test">TEST CONFIG</span></div>
+                <div class="file-description">
+                    Pytest configuration file. Configures test discovery, test paths, and pytest behavior for running
+                    unit and integration tests.
+                </div>
+            </div>
+        </div>
+
+        <!-- SRC DIRECTORY -->
+        <div class="section">
+            <h2>💻 Source Code Directory (src/)</h2>
+
+            <div class="file-item">
+                <div class="file-name">src/__init__.py</div>
+                <div class="file-description">
+                    Python package initializer. Makes the src directory a Python package, allowing imports from other
+                    modules.
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">src/main.py <span class="badge badge-api">MAIN API</span></div>
+                <div class="file-description">
+                    <strong>Main FastAPI application entry point.</strong> Contains all REST API endpoints for:
+                    <ul style="margin-top: 8px; margin-left: 20px;">
+                        <li>Authentication (login, register)</li>
+                        <li>Virtual Coach chat interface</li>
+                        <li>Exercise Guidance AI</li>
+                        <li>Fix My Meal (Clinical Nutrition AI)</li>
+                        <li>Analytics (health scores, trends, insights)</li>
+                        <li>Food logging and meal tracking</li>
+                        <li>Medical report upload with OCR</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">src/nutrition.db <span class="badge badge-data">DATABASE</span></div>
+                <div class="file-description">
+                    SQLite database file for the application. Stores user data, meal logs, conversations, feedback, and
+                    analytics data.
+                </div>
+            </div>
+
+            <div class="file-group">
+                <h3>Authentication Module (src/auth/)</h3>
+
+                <div class="file-item">
+                    <div class="file-name">auth/__init__.py</div>
+                    <div class="file-description">Package initializer for authentication module.</div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">auth/auth_service.py</div>
+                    <div class="file-description">
+                        Authentication service. Handles user registration, login, JWT token generation and validation,
+                        password hashing, and session management.
+                    </div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">auth/database.py</div>
+                    <div class="file-description">
+                        Database configuration and connection. Sets up SQLAlchemy engine, session management, and
+                        database initialization.
+                    </div>
+                </div>
+            </div>
+
+            <div class="file-group">
+                <h3>Data Models (src/models/)</h3>
+
+                <div class="file-item">
+                    <div class="file-name">models/__init__.py</div>
+                    <div class="file-description">Package initializer for data models.</div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">models/user.py</div>
+                    <div class="file-description">
+                        User model and schema. Defines user data structure including profile, medical conditions,
+                        dietary preferences, and health information.
+                    </div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">models/food.py</div>
+                    <div class="file-description">
+                        Food item model. Defines structure for food data including nutritional information (calories,
+                        protein, carbs, fats, vitamins, minerals).
+                    </div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">models/conversation.py</div>
+                    <div class="file-description">
+                        Conversation history model. Stores chat interactions between users and the Virtual Coach AI.
+                    </div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">models/feedback.py</div>
+                    <div class="file-description">
+                        User feedback model. Stores ratings and comments on AI suggestions, meal recommendations, and
+                        system features.
+                    </div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">models/analytics_models.py</div>
+                    <div class="file-description">
+                        Analytics data models. Defines structures for health metrics, nutritional trends, and user
+                        progress tracking.
+                    </div>
+                </div>
+            </div>
+
+            <div class="file-group">
+                <h3>OCR & Food Recognition (src/ocr/)</h3>
+
+                <div class="file-item">
+                    <div class="file-name">ocr/__init__.py</div>
+                    <div class="file-description">Package initializer for OCR module.</div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">ocr/food_recognition.py</div>
+                    <div class="file-description">
+                        Food image recognition system. Uses TensorFlow/Keras models to identify food items from uploaded
+                        images.
+                    </div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">ocr/service.py</div>
+                    <div class="file-description">
+                        OCR service for medical reports. Uses Tesseract/Pytesseract to extract text from medical report
+                        images (glucose levels, cholesterol, etc.).
+                    </div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">ocr/parser.py</div>
+                    <div class="file-description">
+                        Medical report parser. Extracts structured data from OCR text using regex patterns to identify
+                        health vitals and test results.
+                    </div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">ocr/error_handler.py</div>
+                    <div class="file-description">
+                        Error handling for OCR operations. Manages exceptions, provides fallback mechanisms, and logs
+                        OCR processing errors.
+                    </div>
+                </div>
+            </div>
+
+            <div class="file-group">
+                <h3>Intelligence/AI Features (src/intelligence/)</h3>
+
+                <div class="file-item">
+                    <div class="file-name">intelligence/__init__.py</div>
+                    <div class="file-description">Package initializer for AI intelligence module.</div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">intelligence/meal_fixer.py</div>
+                    <div class="file-description">
+                        "Fix My Meal" AI feature. Clinical nutrition assistant that analyzes meals based on detected
+                        foods, nutrition data, and user's medical profile to suggest improvements.
+                    </div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">intelligence/recipe_generator.py</div>
+                    <div class="file-description">
+                        Reverse recipe generation. Creates healthy recipe suggestions based on available ingredients and
+                        user dietary restrictions.
+                    </div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">intelligence/router.py</div>
+                    <div class="file-description">
+                        Intelligence routing logic. Directs user queries to appropriate AI services (meal fixer, recipe
+                        generator, coach, etc.).
+                    </div>
+                </div>
+            </div>
+
+            <div class="file-group">
+                <h3>Virtual Coach (src/coach/)</h3>
+
+                <div class="file-item">
+                    <div class="file-name">coach/__init__.py</div>
+                    <div class="file-description">Package initializer for virtual coach module.</div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">coach/virtual_coach.py</div>
+                    <div class="file-description">
+                        Virtual Coach AI system. Context-aware chatbot that provides nutrition guidance using RAG
+                        (Retrieval Augmented Generation) and LLM (Mistral) while adhering to medical safety rules.
+                    </div>
+                </div>
+            </div>
+
+            <div class="file-group">
+                <h3>Rules Engine (src/rules/)</h3>
+
+                <div class="file-item">
+                    <div class="file-name">rules/__init__.py</div>
+                    <div class="file-description">Package initializer for rules engine.</div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">rules/rule_engine.py</div>
+                    <div class="file-description">
+                        Medical safety rule engine. Enforces dietary restrictions based on user's medical conditions
+                        (diabetes, hypertension, allergies, etc.). Rules always override AI suggestions.
+                    </div>
+                </div>
+            </div>
+
+            <div class="file-group">
+                <h3>Analytics (src/analytics/)</h3>
+
+                <div class="file-item">
+                    <div class="file-name">analytics/__init__.py</div>
+                    <div class="file-description">Package initializer for analytics module.</div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">analytics/analytics_service.py</div>
+                    <div class="file-description">
+                        Analytics and insights service. Calculates health scores, tracks nutritional trends, generates
+                        progress reports, and provides actionable insights.
+                    </div>
+                </div>
+            </div>
+
+            <div class="file-group">
+                <h3>Feedback System (src/feedback/)</h3>
+
+                <div class="file-item">
+                    <div class="file-name">feedback/__init__.py</div>
+                    <div class="file-description">Package initializer for feedback module.</div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">feedback/feedback_service.py</div>
+                    <div class="file-description">
+                        User feedback management. Collects, stores, and analyzes user ratings and comments to improve AI
+                        recommendations.
+                    </div>
+                </div>
+            </div>
+
+            <div class="file-group">
+                <h3>Ethics & Safety (src/ethics/)</h3>
+
+                <div class="file-item">
+                    <div class="file-name">ethics/__init__.py</div>
+                    <div class="file-description">Package initializer for ethics module.</div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">ethics/safety_guards.py</div>
+                    <div class="file-description">
+                        AI safety guardrails. Prevents AI from making medical diagnoses, ensures disclaimers are
+                        included, and validates that all nutrition data comes from trusted databases.
+                    </div>
+                </div>
+            </div>
+
+            <div class="file-group">
+                <h3>Monitoring (src/monitoring/)</h3>
+
+                <div class="file-item">
+                    <div class="file-name">monitoring/__init__.py</div>
+                    <div class="file-description">Package initializer for monitoring module.</div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">monitoring/monitoring_service.py</div>
+                    <div class="file-description">
+                        Application monitoring and health checks. Tracks system performance, logs errors, and provides
+                        health status for container orchestration.
+                    </div>
+                </div>
+            </div>
+
+            <div class="file-group">
+                <h3>Performance Optimization (src/performance/)</h3>
+
+                <div class="file-item">
+                    <div class="file-name">performance/__init__.py</div>
+                    <div class="file-description">Package initializer for performance module.</div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">performance/optimization.py</div>
+                    <div class="file-description">
+                        Performance optimization utilities. Implements caching, query optimization, and response time
+                        improvements.
+                    </div>
+                </div>
+            </div>
+
+            <div class="file-group">
+                <h3>Security (src/security/)</h3>
+
+                <div class="file-item">
+                    <div class="file-name">security/__init__.py</div>
+                    <div class="file-description">Package initializer for security module.</div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">security/security_service.py</div>
+                    <div class="file-description">
+                        Security utilities. Handles input validation, XSS prevention, SQL injection protection, and
+                        secure data handling.
+                    </div>
+                </div>
+            </div>
+
+            <div class="file-group">
+                <h3>Plugins (src/plugins/)</h3>
+
+                <div class="file-item">
+                    <div class="file-name">plugins/__init__.py</div>
+                    <div class="file-description">Package initializer for plugins module.</div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">plugins/plugin_manager.py</div>
+                    <div class="file-description">
+                        Plugin management system. Allows extending functionality through modular plugins and third-party
+                        integrations.
+                    </div>
+                </div>
+            </div>
+
+            <div class="file-group">
+                <h3>LLM Services (src/services/)</h3>
+
+                <div class="file-item">
+                    <div class="file-name">services/__init__.py</div>
+                    <div class="file-description">Package initializer for services module.</div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-name">services/llm_service.py</div>
+                    <div class="file-description">
+                        Large Language Model service integration. Manages connections to Mistral AI or other LLM
+                        providers for intelligent responses.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODELS DIRECTORY -->
+        <div class="section">
+            <h2>🤖 Machine Learning Models (models/)</h2>
+
+            <div class="file-item">
+                <div class="file-name">models/README.md <span class="badge badge-doc">DOCUMENTATION</span></div>
+                <div class="file-description">
+                    Documentation for the ML models directory. Explains model architecture, training data, and usage
+                    instructions.
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">models/food_classifier.keras <span class="badge badge-model">MODEL FILE</span>
+                </div>
+                <div class="file-description">
+                    <strong>Pre-trained Keras/TensorFlow model (169 MB).</strong> Deep learning model for food image
+                    classification. Identifies food items from uploaded images.
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">models/food_classifier.py</div>
+                <div class="file-description">
+                    Food classifier training and inference script. Contains code for training the model, loading
+                    pre-trained weights, and making predictions on new images.
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">models/labels.json <span class="badge badge-data">DATA</span></div>
+                <div class="file-description">
+                    Food classification labels. JSON file mapping class indices to food names (e.g., {"0": "apple", "1":
+                    "banana", ...}).
+                </div>
+            </div>
+        </div>
+
+        <!-- STATIC DIRECTORY -->
+        <div class="section">
+            <h2>🌐 Frontend Files (static/)</h2>
+
+            <div class="file-item">
+                <div class="file-name">static/index.html</div>
+                <div class="file-description">
+                    Landing page. Main entry point for the web application with project introduction and navigation.
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">static/login.html</div>
+                <div class="file-description">
+                    User login page. Interface for existing users to authenticate and access their accounts.
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">static/register.html</div>
+                <div class="file-description">
+                    User registration page. Form for new users to create accounts with medical profile setup.
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">static/dashboard.html</div>
+                <div class="file-description">
+                    Main user dashboard. Displays health scores, nutritional trends, meal history, and access to AI
+                    features (Virtual Coach, Exercise AI, Fix My Meal).
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">static/food-scan.html</div>
+                <div class="file-description">
+                    Food scanning interface. Allows users to upload food images for AI recognition and nutritional
+                    analysis.
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">static/upload.html</div>
+                <div class="file-description">
+                    Medical report upload page. Interface for uploading medical reports (blood tests, prescriptions) for
+                    OCR processing.
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">static/app.html</div>
+                <div class="file-description">
+                    Main application interface. Central hub for accessing all features after login.
+                </div>
+            </div>
+        </div>
+
+        <!-- DATA DIRECTORY -->
+        <div class="section">
+            <h2>📊 Data Directory (data/)</h2>
+
+            <div class="file-item">
+                <div class="file-name">data/nutrition.db <span class="badge badge-data">DATABASE</span></div>
+                <div class="file-description">
+                    Nutrition database. SQLite database containing USDA and OpenFoodFacts nutrition data for food
+                    lookup.
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">data/sample_foods.csv <span class="badge badge-data">DATA</span></div>
+                <div class="file-description">
+                    Sample food dataset. CSV file with example food items and their nutritional information for testing
+                    and development.
+                </div>
+            </div>
+        </div>
+
+        <!-- DOCS DIRECTORY -->
+        <div class="section">
+            <h2>📚 Documentation (docs/)</h2>
+
+            <div class="file-item">
+                <div class="file-name">docs/AI_LIMITATIONS.md <span class="badge badge-doc">DOCUMENTATION</span></div>
+                <div class="file-description">
+                    AI ethical guidelines and limitations. Documents what the AI can and cannot do, medical disclaimers,
+                    and safety boundaries.
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">docs/DEPLOYMENT.md <span class="badge badge-doc">DOCUMENTATION</span></div>
+                <div class="file-description">
+                    Deployment instructions. Step-by-step guide for deploying the application to production environments
+                    (Docker, cloud platforms).
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">docs/EVALUATION.md <span class="badge badge-doc">DOCUMENTATION</span></div>
+                <div class="file-description">
+                    System evaluation criteria. Documents how to test and evaluate the AI's performance, accuracy, and
+                    safety compliance.
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">docs/GIT_WORKFLOW.md <span class="badge badge-doc">DOCUMENTATION</span></div>
+                <div class="file-description">
+                    Git workflow guidelines. Team collaboration practices, branching strategy, and commit message
+                    conventions.
+                </div>
+            </div>
+        </div>
+
+        <!-- TESTS DIRECTORY -->
+        <div class="section">
+            <h2>🧪 Tests Directory (tests/)</h2>
+
+            <div class="file-item">
+                <div class="file-name">tests/__init__.py</div>
+                <div class="file-description">Package initializer for tests module.</div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">tests/test_intelligence.py <span class="badge badge-test">UNIT TESTS</span></div>
+                <div class="file-description">
+                    Intelligence module tests. Validates meal fixer, recipe generator, and AI routing functionality.
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">tests/test_phase3.py <span class="badge badge-test">INTEGRATION TESTS</span>
+                </div>
+                <div class="file-description">
+                    Phase 3 feature tests. Integration tests for complete user workflows including OCR, food
+                    recognition, and AI features.
+                </div>
+            </div>
+
+            <div class="file-item">
+                <div class="file-name">tests/test_rule_engine.py <span class="badge badge-test">UNIT TESTS</span></div>
+                <div class="file-description">
+                    Rule engine tests. Validates medical safety rules, dietary restrictions, and allergy detection.
+                </div>
+            </div>
+        </div>
+
+        <!-- SCRIPTS DIRECTORY -->
+        <div class="section">
+            <h2>⚙️ Scripts Directory (scripts/)</h2>
+
+            <div class="file-item">
+                <div class="file-name">scripts/fetch_usda_data.py</div>
+                <div class="file-description">
+                    USDA data fetcher. Script to download and update nutrition data from the USDA FoodData Central API.
+                </div>
+            </div>
+        </div>
+
+        <!-- VIRTUAL ENVIRONMENT -->
+        <div class="section">
+            <h2>🐍 Virtual Environment (venv/)</h2>
+
+            <div class="file-item">
+                <div class="file-name">venv/ <span class="badge badge-config">VIRTUAL ENV</span></div>
+                <div class="file-description">
+                    Python virtual environment directory. Contains isolated Python interpreter and all installed
+                    packages. <strong>NOT committed to version control.</strong> Contains 21,000+ files including Python
+                    executable, pip, and all dependencies.
+                </div>
+            </div>
+        </div>
+
+        <!-- ARCHITECTURE DIAGRAM -->
+        <div class="section">
+            <h2>🏗️ System Architecture</h2>
+            <div class="project-overview">
+                <h3 style="color: #667eea; margin-bottom: 15px;">Application Flow</h3>
+                <ol style="margin-left: 25px;">
+                    <li><strong>User Interface (static/):</strong> HTML pages for user interaction</li>
+                    <li><strong>API Layer (src/main.py):</strong> FastAPI endpoints handling requests</li>
+                    <li><strong>Authentication (src/auth/):</strong> User verification and session management</li>
+                    <li><strong>AI Services:</strong>
+                        <ul style="margin-left: 20px; margin-top: 5px;">
+                            <li>Virtual Coach (src/coach/)</li>
+                            <li>Meal Fixer (src/intelligence/)</li>
+                            <li>Food Recognition (src/ocr/ + models/)</li>
+                            <li>Exercise Guidance (src/main.py)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Safety Layer (src/rules/, src/ethics/):</strong> Medical rule validation</li>
+                    <li><strong>Data Layer (src/models/, data/):</strong> Database and data models</li>
+                    <li><strong>External Services (src/services/):</strong> LLM APIs (Mistral)</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Generated:</strong> December 28, 2025</p>
+            <p><strong>Total Files:</strong> 68+ (excluding virtual environment)</p>
+            <p><strong>Project Type:</strong> Healthcare Support System (FastAPI + AI)</p>
+        </div>
+    </div>
+</body>
+
+</html>

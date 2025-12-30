@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Food - AI Nutrition</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --accent: #3b82f6;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 3D Canvas Background */
+        #three-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Header */
+        .header {
+            position: relative;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .header a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .header a:hover {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        /* Main Content */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .title-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .title-section h2 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .title-section p {
+            color: var(--muted);
+            font-size: 16px;
+        }
+
+        /* Upload Card */
+        .upload-card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 30px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .upload-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            padding: 60px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .drop-zone:hover,
+        .drop-zone.dragover {
+            border-color: var(--primary);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .drop-zone-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .drop-zone h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .drop-zone p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .drop-zone p span {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* Preview */
+        .preview-container {
+            display: none;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .preview-container.show {
+            display: block;
+        }
+
+        .preview-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 12px;
+            background: var(--bg);
+        }
+
+        .preview-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding: 12px 16px;
+            background: var(--bg);
+            border-radius: 8px;
+        }
+
+        .preview-name {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .preview-size {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .remove-btn {
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* Scan Button */
+        .scan-btn {
+            width: 100%;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .scan-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .scan-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Status */
+        .status-bar {
+            display: none;
+            margin-top: 24px;
+            padding: 20px;
+            background: var(--bg);
+            border-radius: 12px;
+        }
+
+        .status-bar.show {
+            display: block;
+        }
+
+        .status-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .status-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0.4;
+            transition: opacity 0.3s;
+        }
+
+        .status-step.active {
+            opacity: 1;
+        }
+
+        .status-step.done {
+            opacity: 1;
+        }
+
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+
+        .status-step.active .step-icon {
+            background: var(--primary);
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-step.done .step-icon {
+            background: var(--primary);
+            color: white;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .step-label {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            width: 0%;
+            transition: width 0.5s ease-out;
+        }
+
+        /* Results */
+        .results-section {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .results-header h3 {
+            font-size: 24px;
+        }
+
+        .safety-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .safety-badge.safe {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .safety-badge.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .safety-badge.danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .nutrition-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .nutrition-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+        }
+
+        .nutrition-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .nutrition-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .nutrition-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .nutrition-unit {
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .nutrition-label {
+            font-size: 14px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        /* Violations */
+        .violations-section {
+            margin-top: 20px;
+        }
+
+        .violation-card {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .violation-card.danger {
+            background: #fee2e2;
+            border-left-color: #ef4444;
+        }
+
+        /* Actions */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .action-btn.primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .action-btn.secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 3D Background -->
+    <canvas id="three-canvas"></canvas>
+
+    <!-- Header -->
+    <div class="header">
+        <h1>🥗 AI Nutrition</h1>
+        <a href="dashboard.html">← Dashboard</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="title-section">
+            <h2>📸 Scan Your Food</h2>
+            <p>Upload a photo of your meal and get instant nutrition analysis</p>
+        </div>
+
+        <!-- Upload Card -->
+        <div class="upload-card">
+            <div class="drop-zone" id="dropZone">
+                <div class="drop-zone-icon">📷</div>
+                <h3>Drop your food photo here</h3>
+                <p>or <span>click to browse</span></p>
+                <p style="margin-top: 8px; font-size: 12px;">Supports JPG, PNG (max 10MB)</p>
+            </div>
+
+            <input type="file" id="fileInput" accept="image/*">
+
+            <div class="preview-container" id="previewContainer">
+                <img id="previewImage" class="preview-image" alt="Preview">
+                <div class="preview-info">
+                    <div>
+                        <span class="preview-name" id="previewName"></span>
+                        <span class="preview-size" id="previewSize"></span>
+                    </div>
+                    <button class="remove-btn" onclick="removeFile()">✕ Remove</button>
+                </div>
+            </div>
+
+            <button class="scan-btn" id="scanBtn" disabled>
+                <span>🔍</span>
+                <span>Analyze Food</span>
+            </button>
+
+            <!-- Status Bar -->
+            <div class="status-bar" id="statusBar">
+                <div class="status-steps">
+                    <div class="status-step" id="step1">
+                        <div class="step-icon">⬆️</div>
+                        <span class="step-label">Upload</span>
+                    </div>
+                    <div class="status-step" id="step2">
+                        <div class="step-icon">🔍</div>
+                        <span class="step-label">Scan</span>
+                    </div>
+                    <div class="status-step" id="step3">
+                        <div class="step-icon">🧮</div>
+                        <span class="step-label">Analyze</span>
+                    </div>
+                    <div class="status-step" id="step4">
+                        <div class="step-icon">✓</div>
+                        <span class="step-label">Done</span>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection">
+            <div class="upload-card">
+                <div class="results-header">
+                    <h3 id="foodName">Food Analysis</h3>
+                    <span class="safety-badge safe" id="safetyBadge">✓ Safe</span>
+                </div>
+
+                <div class="nutrition-grid" id="nutritionGrid">
+                    <!-- Filled by JS -->
+                </div>
+
+                <div class="violations-section" id="violationsSection">
+                    <!-- Filled by JS -->
+                </div>
+
+                <div class="action-buttons">
+                    <button class="action-btn secondary" onclick="scanAgain()">↻ Scan Another</button>
+                    <button class="action-btn primary" onclick="fixMyMeal()" id="fixMealBtn">🔧 Fix My Meal</button>
+                    <button class="action-btn primary" onclick="askCoach()">💬 Ask AI Coach</button>
+                </div>
+
+                <!-- Fix My Meal Results -->
+                <div id="fixMealResults" style="display: none; margin-top: 24px;">
+                    <div
+                        style="background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 12px; padding: 20px; border-left: 4px solid #f59e0b;">
+                        <h3 style="margin-bottom: 12px; color: #92400e;">🔧 Fix My Meal Analysis</h3>
+                        <div id="fixMealVerdict" style="font-weight: 600; font-size: 18px; margin-bottom: 12px;"></div>
+                        <div id="fixMealContent" style="white-space: pre-wrap; font-size: 14px; line-height: 1.6;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // THREE.JS 3D BACKGROUND
+        // ============================================
+
+        let scene, camera, renderer;
+        const foodEmojis = ['🍎', '🍕', '🥗', '🍔', '🥑', '🍇', '🥕', '🍞'];
+        const particles = [];
+
+        function init3D() {
+            const canvas = document.getElementById('three-canvas');
+
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 30;
+
+            renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            // Create floating spheres
+            const geometry = new THREE.SphereGeometry(0.5, 32, 32);
+            const colors = [0x10b981, 0x3b82f6, 0xf59e0b, 0xef4444, 0x8b5cf6];
+
+            for (let i = 0; i < 30; i++) {
+                const material = new THREE.MeshBasicMaterial({
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    transparent: true,
+                    opacity: 0.3,
+                });
+
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.position.x = (Math.random() - 0.5) * 50;
+                mesh.position.y = (Math.random() - 0.5) * 50;
+                mesh.position.z = (Math.random() - 0.5) * 20;
+                mesh.scale.setScalar(Math.random() * 2 + 0.5);
+
+                particles.push({
+                    mesh,
+                    speedX: (Math.random() - 0.5) * 0.02,
+                    speedY: (Math.random() - 0.5) * 0.02,
+                    speedZ: (Math.random() - 0.5) * 0.01,
+                });
+
+                scene.add(mesh);
+            }
+
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            particles.forEach(p => {
+                p.mesh.position.x += p.speedX;
+                p.mesh.position.y += p.speedY;
+                p.mesh.rotation.x += 0.01;
+                p.mesh.rotation.y += 0.01;
+
+                // Wrap around
+                if (p.mesh.position.x > 30) p.mesh.position.x = -30;
+                if (p.mesh.position.x < -30) p.mesh.position.x = 30;
+                if (p.mesh.position.y > 30) p.mesh.position.y = -30;
+                if (p.mesh.position.y < -30) p.mesh.position.y = 30;
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            if (renderer && camera) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        });
+
+        // Initialize 3D with error handling
+        try {
+            init3D();
+        } catch (err) {
+            console.error('3D init error:', err);
+        }
+
+        // ============================================
+        // FILE UPLOAD
+        // ============================================
+
+        const API_BASE = '';
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImage = document.getElementById('previewImage');
+        const previewName = document.getElementById('previewName');
+        const previewSize = document.getElementById('previewSize');
+        const scanBtn = document.getElementById('scanBtn');
+        const statusBar = document.getElementById('statusBar');
+        const progressFill = document.getElementById('progressFill');
+        const resultsSection = document.getElementById('resultsSection');
+
+        let selectedFile = null;
+
+        // Make sure dropzone click works
+        dropZone.addEventListener('click', (e) => {
+            e.stopPropagation();
+            console.log('Drop zone clicked');
+            fileInput.click();
+        });
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            console.log('File dropped:', e.dataTransfer.files);
+            if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+        });
+
+        fileInput.addEventListener('change', () => {
+            console.log('File input changed:', fileInput.files);
+            if (fileInput.files.length) handleFile(fileInput.files[0]);
+        });
+
+        function handleFile(file) {
+            console.log('Handling file:', file.name, file.type, file.size);
+
+            try {
+                if (!file.type.startsWith('image/')) {
+                    alert('Please upload an image file');
+                    return;
+                }
+
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('File too large (max 10MB)');
+                    return;
+                }
+
+                selectedFile = file;
+
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    console.log('File read complete');
+                    previewImage.src = e.target.result;
+                    previewContainer.classList.add('show');
+                    dropZone.style.display = 'none';
+                };
+                reader.onerror = (e) => {
+                    console.error('FileReader error:', e);
+                    alert('Error reading file');
+                };
+                reader.readAsDataURL(file);
+
+                previewName.textContent = file.name;
+                previewSize.textContent = ` (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+                scanBtn.disabled = false;
+                console.log('File handling complete, button enabled');
+            } catch (err) {
+                console.error('handleFile error:', err);
+                alert('Error: ' + err.message);
+            }
+        }
+
+        function removeFile() {
+            selectedFile = null;
+            previewContainer.classList.remove('show');
+            dropZone.style.display = 'block';
+            scanBtn.disabled = true;
+            fileInput.value = '';
+        }
+
+        // ============================================
+        // SCAN FOOD
+        // ============================================
+
+        scanBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            scanBtn.disabled = true;
+            statusBar.classList.add('show');
+            resultsSection.classList.remove('show');
+
+            // Animate steps
+            await animateStep(1, 25);
+            await animateStep(2, 50);
+
+            try {
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+
+                const response = await fetch(`${API_BASE}/api/food/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+
+                // Check for auth error
+                if (response.status === 401) {
+                    alert('Session expired. Please login again.');
+                    localStorage.removeItem('token');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                await animateStep(3, 75);
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    await animateStep(4, 100);
+                    setTimeout(() => showResults(data), 500);
+                } else {
+                    throw new Error(data.detail || 'Analysis failed');
+                }
+            } catch (err) {
+                console.error('Scan error:', err);
+                alert('Error: ' + err.message);
+                statusBar.classList.remove('show');
+                scanBtn.disabled = false;
+            }
+        });
+
+        async function animateStep(step, progress) {
+            return new Promise(resolve => {
+                document.querySelectorAll('.status-step').forEach((el, i) => {
+                    if (i < step) el.classList.add('done');
+                    else el.classList.remove('done');
+                    el.classList.toggle('active', i === step - 1);
+                });
+                progressFill.style.width = progress + '%';
+                setTimeout(resolve, 600);
+            });
+        }
+
+        function showResults(data) {
+            statusBar.classList.remove('show');
+            resultsSection.classList.add('show');
+
+            document.getElementById('foodName').textContent = data.food_name || 'Food Analysis';
+
+            // Safety badge
+            const badge = document.getElementById('safetyBadge');
+            const verdict = data.safety?.verdict || 'safe';
+            badge.className = `safety-badge ${verdict}`;
+            badge.textContent = verdict === 'safe' ? '✓ Safe' :
+                verdict === 'warning' ? '⚠ Caution' : '✗ Warning';
+
+            // Nutrition cards
+            const grid = document.getElementById('nutritionGrid');
+            const nutrition = data.nutrition || {};
+            grid.innerHTML = `
+                <div class="nutrition-card">
+                    <div class="nutrition-icon">🔥</div>
+                    <div class="nutrition-value">${nutrition.calories || 0}<span class="nutrition-unit">kcal</span></div>
+                    <div class="nutrition-label">Calories</div>
+                </div>
+                <div class="nutrition-card">
+                    <div class="nutrition-icon">🥩</div>
+                    <div class="nutrition-value">${nutrition.protein_g || 0}<span class="nutrition-unit">g</span></div>
+                    <div class="nutrition-label">Protein</div>
+                </div>
+                <div class="nutrition-card">
+                    <div class="nutrition-icon">🍞</div>
+                    <div class="nutrition-value">${nutrition.carbs_g || 0}<span class="nutrition-unit">g</span></div>
+                    <div class="nutrition-label">Carbs</div>
+                </div>
+                <div class="nutrition-card">
+                    <div class="nutrition-icon">🧈</div>
+                    <div class="nutrition-value">${nutrition.fat_g || 0}<span class="nutrition-unit">g</span></div>
+                    <div class="nutrition-label">Fat</div>
+                </div>
+            `;
+
+            // Violations
+            const violationsSection = document.getElementById('violationsSection');
+            const violations = data.safety?.violations || [];
+            if (violations.length > 0) {
+                violationsSection.innerHTML = '<h4 style="margin-bottom: 12px;">⚠️ Warnings</h4>' +
+                    violations.map(v => `
+                        <div class="violation-card ${v.severity === 'block' ? 'danger' : ''}">
+                            <strong>${v.rule_id}</strong>: ${v.message}
+                        </div>
+                    `).join('');
+            } else {
+                violationsSection.innerHTML = '';
+            }
+
+            // Store for coach
+            localStorage.setItem('lastFoodScan', JSON.stringify(data));
+        }
+
+        function scanAgain() {
+            removeFile();
+            resultsSection.classList.remove('show');
+        }
+
+        function askCoach() {
+            window.location.href = 'index.html';
+        }
+
+        // Fix My Meal - Clinical Nutrition AI
+        async function fixMyMeal() {
+            const btn = document.getElementById('fixMealBtn');
+            const resultsDiv = document.getElementById('fixMealResults');
+            const verdictDiv = document.getElementById('fixMealVerdict');
+            const contentDiv = document.getElementById('fixMealContent');
+
+            // Show loading
+            btn.disabled = true;
+            btn.textContent = '⏳ Analyzing...';
+            resultsDiv.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/meal/fix', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})  // Auto-fetches from context
+                });
+
+                const data = await response.json();
+
+                // Update verdict color based on result
+                if (data.verdict === 'Healthy') {
+                    resultsDiv.querySelector('div').style.background = 'linear-gradient(135deg, #d1fae5, #a7f3d0)';
+                    resultsDiv.querySelector('div').style.borderLeftColor = '#10b981';
+                    verdictDiv.innerHTML = '✅ Verdict: <span style="color: #059669;">Healthy</span>';
+                } else if (data.verdict === 'No Data') {
+                    resultsDiv.querySelector('div').style.background = 'linear-gradient(135deg, #e5e7eb, #d1d5db)';
+                    resultsDiv.querySelector('div').style.borderLeftColor = '#6b7280';
+                    verdictDiv.innerHTML = '⚠️ No food data available';
+                } else {
+                    resultsDiv.querySelector('div').style.background = 'linear-gradient(135deg, #fef3c7, #fde68a)';
+                    resultsDiv.querySelector('div').style.borderLeftColor = '#f59e0b';
+                    verdictDiv.innerHTML = '⚠️ Verdict: <span style="color: #d97706;">Needs Fix</span>';
+                }
+
+                // Display formatted response
+                contentDiv.textContent = data.formatted_response || data.message;
+                resultsDiv.style.display = 'block';
+
+                // Scroll to results
+                resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            } catch (error) {
+                console.error('Fix meal error:', error);
+                verdictDiv.innerHTML = '❌ Error analyzing meal';
+                contentDiv.textContent = 'Could not analyze the meal. Please try again.';
+                resultsDiv.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🔧 Fix My Meal';
+            }
+        }
+    </script>
+</body>
+
+</html>

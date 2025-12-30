@@ -1,0 +1,125 @@
+food_id,name,brand,serving_size,serving_unit,calories,protein_g,carbs_g,sugar_g,fiber_g,fat_g,saturated_fat_g,sodium_mg,potassium_mg,cholesterol_mg,glycemic_index,allergens,category,data_source
+apple-raw-001,Apple (raw medium),null,182,g,95,0.5,25.0,19.0,4.4,0.3,0.1,2,195,0,36,,fruit,usda
+banana-raw-001,Banana (raw medium),null,118,g,105,1.3,27.0,14.0,3.1,0.4,0.1,1,422,0,51,,fruit,usda
+chicken-breast-001,Chicken Breast (grilled),null,100,g,165,31.0,0.0,0.0,0.0,3.6,1.0,74,256,85,0,,protein,usda
+brown-rice-001,Brown Rice (cooked),null,195,g,216,5.0,45.0,0.7,3.5,1.8,0.4,10,84,0,50,,grain,usda
+white-rice-001,White Rice (cooked),null,158,g,206,4.3,45.0,0.1,0.6,0.4,0.1,2,55,0,73,,grain,usda
+salmon-001,Salmon (baked),null,100,g,208,20.0,0.0,0.0,0.0,13.0,3.0,59,384,55,0,"fish",protein,usda
+egg-001,Egg (large whole),null,50,g,72,6.3,0.4,0.2,0.0,5.0,1.6,71,69,186,0,"eggs",protein,usda
+milk-whole-001,Whole Milk,null,244,ml,149,8.0,12.0,12.0,0.0,8.0,4.6,105,322,24,31,"dairy",dairy,usda
+bread-white-001,White Bread,null,30,g,79,2.7,15.0,1.6,0.7,1.0,0.2,147,36,0,75,"wheat;gluten",grain,usda
+bread-whole-001,Whole Wheat Bread,null,30,g,69,3.6,12.0,1.4,1.9,1.1,0.2,132,53,0,51,"wheat;gluten",grain,usda
+broccoli-001,Broccoli (steamed),null,91,g,31,2.6,6.0,1.6,2.4,0.3,0.1,32,288,0,15,,vegetable,usda
+spinach-001,Spinach (raw),null,30,g,7,0.9,1.1,0.1,0.7,0.1,0.0,24,167,0,15,,vegetable,usda
+peanut-butter-001,Peanut Butter,null,32,g,188,8.0,6.0,1.7,1.8,16.0,3.3,136,189,0,14,"peanuts",fat_oil,usda
+cheddar-001,Cheddar Cheese,null,28,g,114,7.0,0.4,0.1,0.0,9.4,6.0,176,28,28,0,"dairy",dairy,usda
+orange-juice-001,Orange Juice (fresh),null,240,ml,112,1.7,26.0,21.0,0.5,0.5,0.1,2,496,0,50,,beverage,usda
+coca-cola-001,Coca-Cola Classic,Coca-Cola,355,ml,140,0.0,39.0,39.0,0.0,0.0,0.0,45,0,0,63,,beverage,openfoodfacts
+chips-001,Potato Chips,null,28,g,152,2.0,15.0,0.1,1.0,10.0,3.0,149,361,0,70,,snack,usda
+ice-cream-001,Vanilla Ice Cream,null,66,g,137,2.3,16.0,14.0,0.0,7.3,4.5,53,131,29,61,"dairy",snack,usda
+pizza-001,Cheese Pizza (1 slice),null,107,g,285,12.0,36.0,4.0,2.5,10.0,4.5,640,172,18,80,"wheat;gluten;dairy",prepared_meal,usda
+soup-chicken-001,Chicken Noodle Soup (canned),Campbell's,240,ml,150,8.0,18.0,2.0,1.0,5.0,1.5,890,200,15,56,"wheat;soy",prepared_meal,openfoodfacts
+candy-bar-001,Chocolate Candy Bar,null,44,g,220,3.0,26.0,22.0,1.0,12.0,7.0,30,128,5,70,"dairy;soy",snack,openfoodfacts
+yogurt-001,Greek Yogurt (plain),null,150,g,100,17.0,6.0,4.0,0.0,0.7,0.0,56,220,5,11,"dairy",dairy,usda
+oatmeal-001,Oatmeal (cooked),null,234,g,158,6.0,27.0,1.0,4.0,3.0,0.5,9,143,0,55,"gluten",grain,usda
+almonds-001,Almonds (raw),null,28,g,164,6.0,6.0,1.2,3.5,14.0,1.1,0,200,0,15,"tree_nuts",snack,usda
+avocado-001,Avocado (half),null,100,g,160,2.0,9.0,0.7,7.0,15.0,2.1,7,485,0,15,,fruit,usda
+apple_pie,Apple Pie,null,125,g,296,2.4,43.0,19.0,1.6,13.0,4.5,251,81,0,44,"wheat;gluten",dessert,usda
+baby_back_ribs,Baby Back Ribs,null,150,g,340,25.0,8.0,6.0,0.0,23.0,8.5,480,320,95,0,,protein,usda
+baklava,Baklava,null,78,g,334,5.0,29.0,18.0,1.5,23.0,8.0,186,102,23,45,"wheat;gluten;tree_nuts",dessert,usda
+beef_carpaccio,Beef Carpaccio,null,100,g,121,21.0,0.5,0.0,0.0,3.5,1.5,45,350,50,0,,protein,usda
+beef_tartare,Beef Tartare,null,100,g,147,21.0,1.0,0.5,0.0,6.0,2.5,55,320,65,0,"eggs",protein,usda
+beet_salad,Beet Salad,null,150,g,120,3.0,18.0,12.0,3.0,4.0,0.5,180,400,0,64,,vegetable,usda
+beignets,Beignets,null,85,g,298,5.0,42.0,12.0,1.0,12.0,3.0,320,65,15,75,"wheat;gluten;dairy",dessert,usda
+bibimbap,Bibimbap,null,350,g,520,25.0,68.0,5.0,4.0,15.0,3.5,890,450,185,65,"eggs;soy",prepared_meal,usda
+bread_pudding,Bread Pudding,null,150,g,285,7.0,42.0,24.0,1.0,10.0,4.5,320,150,85,60,"wheat;gluten;dairy;eggs",dessert,usda
+breakfast_burrito,Breakfast Burrito,null,215,g,375,17.0,35.0,3.0,2.5,18.0,7.0,720,280,195,55,"wheat;gluten;eggs;dairy",prepared_meal,usda
+bruschetta,Bruschetta,null,120,g,185,5.0,22.0,3.0,2.0,8.0,1.5,380,250,0,45,"wheat;gluten",appetizer,usda
+caesar_salad,Caesar Salad,null,200,g,180,8.0,10.0,2.0,3.0,12.0,3.0,480,350,25,15,"eggs;dairy;fish",salad,usda
+cannoli,Cannoli,null,95,g,345,7.0,38.0,22.0,1.0,18.0,8.0,125,90,65,55,"wheat;gluten;dairy",dessert,usda
+caprese_salad,Caprese Salad,null,180,g,250,12.0,6.0,4.0,1.0,20.0,9.0,380,350,35,15,"dairy",salad,usda
+carrot_cake,Carrot Cake,null,110,g,315,4.0,42.0,28.0,1.5,15.0,3.5,280,125,45,60,"wheat;gluten;eggs;dairy;tree_nuts",dessert,usda
+ceviche,Ceviche,null,150,g,130,18.0,8.0,2.0,1.0,3.0,0.5,420,380,50,20,"fish;shellfish",appetizer,usda
+cheesecake,Cheesecake,null,125,g,401,6.0,32.0,26.0,0.5,28.0,14.0,330,120,95,45,"wheat;gluten;eggs;dairy",dessert,usda
+cheese_plate,Cheese Plate,null,100,g,380,22.0,2.0,0.5,0.0,31.0,19.0,620,150,95,0,"dairy",appetizer,usda
+chicken_curry,Chicken Curry,null,250,g,285,28.0,12.0,4.0,2.0,14.0,5.0,680,450,75,35,,prepared_meal,usda
+chicken_quesadilla,Chicken Quesadilla,null,180,g,485,28.0,32.0,2.0,2.0,26.0,12.0,920,280,85,45,"wheat;gluten;dairy",prepared_meal,usda
+chicken_wings,Chicken Wings,null,150,g,290,27.0,0.0,0.0,0.0,19.0,5.0,740,220,130,0,,protein,usda
+chocolate_cake,Chocolate Cake,null,95,g,352,4.5,51.0,35.0,2.0,16.0,6.0,320,140,55,60,"wheat;gluten;eggs;dairy",dessert,usda
+chocolate_mousse,Chocolate Mousse,null,100,g,225,4.0,24.0,18.0,1.5,14.0,8.0,65,145,95,40,"eggs;dairy",dessert,usda
+churros,Churros,null,85,g,285,4.0,35.0,15.0,1.0,14.0,3.5,280,55,15,70,"wheat;gluten",dessert,usda
+clam_chowder,Clam Chowder,null,245,g,220,9.0,18.0,3.0,1.0,12.0,5.0,890,380,35,55,"shellfish;dairy;wheat;gluten",soup,usda
+club_sandwich,Club Sandwich,null,285,g,520,32.0,42.0,5.0,3.0,24.0,7.0,1280,420,85,55,"wheat;gluten;eggs",prepared_meal,usda
+crab_cakes,Crab Cakes,null,100,g,195,18.0,10.0,1.0,0.5,9.0,2.0,520,250,85,45,"shellfish;wheat;gluten;eggs",protein,usda
+creme_brulee,Creme Brulee,null,120,g,310,4.0,26.0,24.0,0.0,22.0,12.0,75,120,220,45,"eggs;dairy",dessert,usda
+croque_madame,Croque Madame,null,200,g,520,28.0,32.0,3.0,2.0,32.0,14.0,980,280,285,"wheat;gluten;eggs;dairy",prepared_meal,usda
+cup_cakes,Cup Cakes,null,70,g,295,3.0,42.0,28.0,0.5,13.0,4.5,280,65,45,65,"wheat;gluten;eggs;dairy",dessert,usda
+deviled_eggs,Deviled Eggs,null,60,g,135,6.5,1.0,0.5,0.0,11.0,2.5,180,75,215,0,"eggs",appetizer,usda
+donuts,Donuts,null,60,g,252,3.5,31.0,14.0,0.8,13.0,5.0,260,55,15,75,"wheat;gluten;eggs;dairy",dessert,usda
+dumplings,Dumplings,null,120,g,195,8.0,28.0,2.0,1.5,6.0,1.5,420,150,25,55,"wheat;gluten",prepared_meal,usda
+edamame,Edamame,null,100,g,121,12.0,9.0,2.0,5.0,5.0,0.6,6,436,0,15,"soy",vegetable,usda
+eggs_benedict,Eggs Benedict,null,225,g,520,22.0,28.0,2.0,1.0,35.0,12.0,1150,285,385,45,"wheat;gluten;eggs;dairy",prepared_meal,usda
+escargots,Escargots,null,100,g,185,16.0,2.0,0.0,0.0,12.0,3.0,360,320,50,0,"shellfish",appetizer,usda
+falafel,Falafel,null,100,g,333,13.0,32.0,3.0,4.5,18.0,2.5,294,585,0,35,,protein,usda
+filet_mignon,Filet Mignon,null,170,g,465,48.0,0.0,0.0,0.0,29.0,11.0,105,580,145,0,,protein,usda
+fish_and_chips,Fish and Chips,null,300,g,585,22.0,52.0,2.0,4.0,32.0,5.5,680,580,65,75,"fish;wheat;gluten",prepared_meal,usda
+foie_gras,Foie Gras,null,50,g,230,5.5,2.5,0.5,0.0,22.0,7.5,320,85,285,0,,protein,usda
+french_fries,French Fries,null,117,g,365,4.0,48.0,0.5,4.0,17.0,3.0,280,560,0,75,,snack,usda
+french_onion_soup,French Onion Soup,null,245,g,185,8.0,18.0,6.0,2.0,9.0,4.5,920,220,25,45,"wheat;gluten;dairy",soup,usda
+french_toast,French Toast,null,135,g,285,9.0,36.0,12.0,1.5,11.0,4.0,420,145,115,60,"wheat;gluten;eggs;dairy",breakfast,usda
+fried_calamari,Fried Calamari,null,120,g,295,15.0,18.0,0.5,0.5,18.0,3.5,580,250,220,55,"shellfish;wheat;gluten",appetizer,usda
+fried_rice,Fried Rice,null,200,g,285,7.0,42.0,1.5,1.5,10.0,2.0,680,180,75,65,"eggs;soy",prepared_meal,usda
+frozen_yogurt,Frozen Yogurt,null,100,g,127,4.0,23.0,17.0,0.0,2.5,1.5,75,220,8,35,"dairy",dessert,usda
+garlic_bread,Garlic Bread,null,50,g,185,4.0,22.0,1.5,1.0,9.0,2.5,320,55,5,70,"wheat;gluten;dairy",bread,usda
+gnocchi,Gnocchi,null,150,g,245,5.5,42.0,2.0,2.0,5.0,1.5,380,350,15,65,"wheat;gluten;eggs",prepared_meal,usda
+greek_salad,Greek Salad,null,180,g,155,5.0,10.0,5.0,2.5,11.0,5.0,480,380,20,15,"dairy",salad,usda
+grilled_cheese_sandwich,Grilled Cheese Sandwich,null,120,g,390,15.0,32.0,4.0,1.5,23.0,12.0,780,120,55,55,"wheat;gluten;dairy",prepared_meal,usda
+grilled_salmon,Grilled Salmon,null,170,g,335,40.0,0.0,0.0,0.0,18.0,3.5,95,680,105,0,"fish",protein,usda
+guacamole,Guacamole,null,100,g,160,2.0,9.0,0.7,7.0,15.0,2.2,12,485,0,15,,appetizer,usda
+gyoza,Gyoza,null,100,g,235,9.0,26.0,2.0,1.5,11.0,3.0,520,180,35,55,"wheat;gluten;soy",appetizer,usda
+hamburger,Hamburger,null,215,g,540,30.0,40.0,8.0,2.0,27.0,10.0,780,420,95,55,"wheat;gluten",prepared_meal,usda
+hot_and_sour_soup,Hot and Sour Soup,null,245,g,95,5.0,10.0,2.0,1.5,4.0,1.0,920,280,25,35,"soy;eggs",soup,usda
+hot_dog,Hot Dog,null,150,g,350,13.0,32.0,5.0,1.5,19.0,7.0,920,180,45,55,"wheat;gluten",prepared_meal,usda
+huevos_rancheros,Huevos Rancheros,null,280,g,385,18.0,32.0,5.0,6.0,20.0,6.0,780,520,285,45,"eggs;dairy",breakfast,usda
+hummus,Hummus,null,100,g,177,8.0,14.0,0.5,4.0,10.0,1.5,380,228,0,15,,appetizer,usda
+lasagna,Lasagna,null,250,g,320,18.0,28.0,6.0,2.5,14.0,6.5,680,420,55,45,"wheat;gluten;dairy;eggs",prepared_meal,usda
+lobster_bisque,Lobster Bisque,null,245,g,245,12.0,15.0,4.0,1.0,15.0,8.0,780,380,85,35,"shellfish;dairy",soup,usda
+lobster_roll_sandwich,Lobster Roll Sandwich,null,180,g,420,25.0,32.0,4.0,1.5,22.0,5.0,780,350,145,45,"shellfish;wheat;gluten",prepared_meal,usda
+macaroni_and_cheese,Macaroni and Cheese,null,200,g,385,15.0,38.0,5.0,1.5,19.0,9.0,680,220,45,55,"wheat;gluten;dairy",prepared_meal,usda
+macarons,Macarons,null,40,g,175,3.0,25.0,22.0,0.5,7.0,1.5,25,55,15,60,"eggs;tree_nuts",dessert,usda
+miso_soup,Miso Soup,null,245,g,55,4.0,6.0,2.0,1.0,2.0,0.3,980,220,0,35,"soy;fish",soup,usda
+mussels,Mussels,null,150,g,175,24.0,8.0,0.0,0.0,5.0,1.0,520,380,65,0,"shellfish",protein,usda
+nachos,Nachos,null,180,g,520,15.0,48.0,4.0,5.0,30.0,12.0,780,320,45,65,"dairy",snack,usda
+omelette,Omelette,null,120,g,185,13.0,1.5,0.5,0.0,14.0,4.5,420,185,380,0,"eggs",breakfast,usda
+onion_rings,Onion Rings,null,100,g,330,4.5,38.0,5.0,2.0,18.0,4.0,480,150,0,75,"wheat;gluten",snack,usda
+oysters,Oysters (raw),null,100,g,81,9.0,5.0,0.0,0.0,2.5,0.8,211,156,55,0,"shellfish",protein,usda
+pad_thai,Pad Thai,null,300,g,420,18.0,52.0,12.0,2.0,16.0,2.5,980,350,95,55,"eggs;peanuts;shellfish;soy",prepared_meal,usda
+paella,Paella,null,300,g,385,22.0,45.0,3.0,2.0,12.0,2.5,720,380,85,55,"shellfish;fish",prepared_meal,usda
+pancakes,Pancakes,null,150,g,285,7.0,48.0,12.0,1.5,7.0,2.0,520,145,45,70,"wheat;gluten;eggs;dairy",breakfast,usda
+panna_cotta,Panna Cotta,null,120,g,275,4.0,28.0,24.0,0.0,16.0,10.0,55,95,55,35,"dairy",dessert,usda
+peking_duck,Peking Duck,null,150,g,380,25.0,18.0,6.0,1.0,24.0,6.5,420,280,95,45,"wheat;gluten",prepared_meal,usda
+pho,Pho,null,400,g,285,22.0,35.0,3.0,1.5,6.0,2.0,980,420,45,55,,soup,usda
+pork_chop,Pork Chop,null,170,g,365,38.0,0.0,0.0,0.0,22.0,8.0,85,480,105,0,,protein,usda
+poutine,Poutine,null,250,g,520,15.0,55.0,2.0,5.0,28.0,12.0,920,680,55,75,"dairy",prepared_meal,usda
+prime_rib,Prime Rib,null,170,g,465,42.0,0.0,0.0,0.0,32.0,13.0,95,520,125,0,,protein,usda
+pulled_pork_sandwich,Pulled Pork Sandwich,null,220,g,485,28.0,45.0,12.0,2.0,20.0,6.5,920,380,85,55,"wheat;gluten",prepared_meal,usda
+ramen,Ramen,null,400,g,485,22.0,55.0,4.0,3.0,18.0,6.0,1450,380,65,55,"wheat;gluten;eggs;soy",soup,usda
+ravioli,Ravioli,null,200,g,285,12.0,38.0,4.0,2.0,9.0,4.0,580,220,55,55,"wheat;gluten;eggs;dairy",prepared_meal,usda
+red_velvet_cake,Red Velvet Cake,null,95,g,345,4.0,48.0,32.0,0.5,16.0,5.0,320,85,55,60,"wheat;gluten;eggs;dairy",dessert,usda
+risotto,Risotto,null,200,g,285,8.0,42.0,2.0,1.0,9.0,4.0,580,150,25,70,"dairy",prepared_meal,usda
+samosa,Samosa,null,100,g,308,5.0,32.0,2.0,3.0,18.0,4.0,420,280,0,55,"wheat;gluten",appetizer,usda
+sashimi,Sashimi,null,100,g,145,25.0,0.0,0.0,0.0,5.0,1.0,55,380,45,0,"fish",protein,usda
+scallops,Scallops,null,100,g,111,21.0,3.0,0.0,0.0,1.0,0.2,392,314,41,0,"shellfish",protein,usda
+seaweed_salad,Seaweed Salad,null,100,g,70,1.5,10.0,4.0,1.0,3.0,0.5,480,85,0,15,,salad,usda
+shrimp_and_grits,Shrimp and Grits,null,250,g,420,25.0,32.0,2.0,2.0,22.0,8.0,920,380,185,55,"shellfish;dairy",prepared_meal,usda
+spaghetti_bolognese,Spaghetti Bolognese,null,300,g,420,22.0,52.0,8.0,4.0,14.0,5.0,680,520,55,55,"wheat;gluten",prepared_meal,usda
+spaghetti_carbonara,Spaghetti Carbonara,null,300,g,485,22.0,52.0,3.0,2.5,20.0,8.0,780,280,145,55,"wheat;gluten;eggs;dairy",prepared_meal,usda
+spring_rolls,Spring Rolls,null,100,g,195,6.0,28.0,2.0,2.0,7.0,1.5,480,180,15,55,"wheat;gluten",appetizer,usda
+steak,Steak,null,170,g,380,45.0,0.0,0.0,0.0,21.0,8.0,85,580,125,0,,protein,usda
+strawberry_shortcake,Strawberry Shortcake,null,150,g,285,4.0,42.0,24.0,2.0,11.0,6.0,280,180,45,50,"wheat;gluten;eggs;dairy",dessert,usda
+sushi,Sushi,null,150,g,235,9.0,38.0,6.0,1.5,4.0,1.0,420,180,25,55,"fish;soy",prepared_meal,usda
+tacos,Tacos,null,150,g,285,15.0,25.0,3.0,3.0,14.0,5.0,520,320,45,45,,prepared_meal,usda
+takoyaki,Takoyaki,null,100,g,225,8.0,28.0,3.0,1.0,9.0,2.0,520,180,35,55,"wheat;gluten;eggs;shellfish",appetizer,usda
+tiramisu,Tiramisu,null,120,g,295,5.0,32.0,22.0,0.5,16.0,8.0,85,120,125,40,"eggs;dairy;wheat;gluten",dessert,usda
+tuna_tartare,Tuna Tartare,null,100,g,135,23.0,2.0,0.5,0.0,4.0,1.0,180,380,45,0,"fish",protein,usda
+waffles,Waffles,null,120,g,310,8.0,48.0,8.0,1.5,10.0,3.5,520,120,55,75,"wheat;gluten;eggs;dairy",breakfast,usda

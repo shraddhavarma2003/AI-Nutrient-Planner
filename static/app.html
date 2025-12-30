@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Nutrition - Complete App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #ffffff;
+            --card: #ffffff;
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --accent: #3b82f6;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #f8fafc;
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: var(--card);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            color: var(--primary);
+            font-size: 24px;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .user-badge {
+            background: var(--bg);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            background: none;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Input Section */
+        .input-section {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .input-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        .input-tab {
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            font-size: 15px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-tab:hover {
+            background: var(--bg);
+        }
+
+        .input-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .input-content {
+            display: none;
+        }
+
+        .input-content.active {
+            display: block;
+        }
+
+        /* Text Input */
+        .text-input-area {
+            display: flex;
+            gap: 12px;
+        }
+
+        .text-input-area input {
+            flex: 1;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+
+        .text-input-area input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Voice Input */
+        .voice-container {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .voice-btn {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            font-size: 36px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .voice-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .voice-btn.recording {
+            background: var(--danger);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5);
+            }
+
+            50% {
+                box-shadow: 0 0 0 20px rgba(239, 68, 68, 0);
+            }
+        }
+
+        .voice-status {
+            margin-top: 16px;
+            color: var(--muted);
+        }
+
+        /* Image Input */
+        .image-drop {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .image-drop:hover {
+            border-color: var(--primary);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .image-drop-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        /* Ingredients Input */
+        .ingredients-area textarea {
+            width: 100%;
+            height: 120px;
+            padding: 14px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 15px;
+            resize: vertical;
+        }
+
+        .ingredients-area textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn.primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .action-btn.primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .action-btn.secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        /* Actions Section */
+        .actions-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .action-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .action-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+        }
+
+        .action-card.selected {
+            border-color: var(--primary);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .action-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        .action-card h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        .action-card p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        /* Results Section */
+        .results-section {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .results-header h3 {
+            font-size: 20px;
+        }
+
+        .safety-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .safety-badge.safe {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .safety-badge.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .safety-badge.danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Nutrition Grid */
+        .nutrition-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .nutrition-item {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .nutrition-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .nutrition-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .nutrition-label {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        /* Chat Messages */
+        .chat-messages {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 16px;
+            background: var(--bg);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .chat-message {
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 80%;
+        }
+
+        .chat-message.user {
+            background: var(--primary);
+            color: white;
+            margin-left: auto;
+        }
+
+        .chat-message.bot {
+            background: var(--card);
+            border: 1px solid var(--border);
+        }
+
+        /* Recipe Card */
+        .recipe-card {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .recipe-card h4 {
+            margin-bottom: 12px;
+            color: var(--primary);
+        }
+
+        .recipe-card ul {
+            padding-left: 20px;
+            margin-bottom: 16px;
+        }
+
+        .recipe-card li {
+            margin: 6px 0;
+        }
+
+        .recipe-card ol {
+            padding-left: 20px;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Hidden file input */
+        #imageInput {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>🥗 AI Nutrition</h1>
+        <div class="header-right">
+            <span class="user-badge" id="userBadge">User</span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Input Section -->
+        <div class="input-section">
+            <div class="input-tabs">
+                <button class="input-tab active" onclick="switchInput('text')">📝 Text</button>
+                <button class="input-tab" onclick="switchInput('voice')">🎤 Voice</button>
+                <button class="input-tab" onclick="switchInput('image')">📷 Image</button>
+                <button class="input-tab" onclick="switchInput('ingredients')">🥕 Ingredients</button>
+            </div>
+
+            <!-- Text Input -->
+            <div class="input-content active" id="textInput">
+                <div class="text-input-area">
+                    <input type="text" id="textField" placeholder="Describe your food or ask a question...">
+                    <button class="action-btn primary" onclick="submitText()">Send</button>
+                </div>
+            </div>
+
+            <!-- Voice Input -->
+            <div class="input-content" id="voiceInput">
+                <div class="voice-container">
+                    <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">🎤</button>
+                    <p class="voice-status" id="voiceStatus">Click to start speaking</p>
+                </div>
+            </div>
+
+            <!-- Image Input -->
+            <div class="input-content" id="imageInput">
+                <div class="image-drop" id="imageDrop" onclick="document.getElementById('imageFile').click()">
+                    <div class="image-drop-icon">📸</div>
+                    <p>Click or drag to upload food image</p>
+                </div>
+                <input type="file" id="imageFile" accept="image/*" onchange="handleImage(this)">
+            </div>
+
+            <!-- Ingredients Input -->
+            <div class="input-content" id="ingredientsInput">
+                <div class="ingredients-area">
+                    <textarea id="ingredientsField"
+                        placeholder="Enter ingredients, one per line:&#10;2 eggs&#10;100g chicken&#10;1 cup rice..."></textarea>
+                    <div style="margin-top: 12px; display: flex; gap: 12px;">
+                        <button class="action-btn primary" onclick="generateRecipe()">🍳 Generate Recipe</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Cards -->
+        <div class="actions-section">
+            <div class="action-card" onclick="selectAction('scan')">
+                <div class="action-icon">📊</div>
+                <h3>Analyze Food</h3>
+                <p>Get nutrition info and safety check</p>
+            </div>
+            <div class="action-card" onclick="selectAction('fix')">
+                <div class="action-icon">🔧</div>
+                <h3>Fix My Meal</h3>
+                <p>Get healthier alternatives</p>
+            </div>
+            <div class="action-card" onclick="selectAction('recipe')">
+                <div class="action-icon">📖</div>
+                <h3>Generate Recipe</h3>
+                <p>Create recipe from ingredients</p>
+            </div>
+            <div class="action-card" onclick="selectAction('coach')">
+                <div class="action-icon">💬</div>
+                <h3>AI Coach</h3>
+                <p>Ask nutrition questions</p>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection">
+            <div class="results-header">
+                <h3 id="resultsTitle">Results</h3>
+                <span class="safety-badge safe" id="safetyBadge">✓ Safe</span>
+            </div>
+            <div id="resultsContent">
+                <!-- Dynamic content -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '';
+        const token = localStorage.getItem('token');
+
+        if (!token) window.location.href = 'login.html';
+        document.getElementById('userBadge').textContent = localStorage.getItem('user_name') || 'User';
+
+        let selectedAction = 'scan';
+        let recognition = null;
+
+        // Input Tab Switching
+        function switchInput(type) {
+            document.querySelectorAll('.input-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.input-content').forEach(c => c.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(type + 'Input').classList.add('active');
+        }
+
+        // Action Selection
+        function selectAction(action) {
+            selectedAction = action;
+            document.querySelectorAll('.action-card').forEach(c => c.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+        }
+
+        // Text Submit - Backend handles RAG (auto-fetches food context)
+        async function submitText() {
+            const text = document.getElementById('textField').value.trim();
+            if (!text) return;
+
+            showLoading();
+
+            try {
+                // Send message - Backend will auto-fetch food context via RAG
+                const payload = { message: text };
+
+                console.log('[CHAT] Sending message (backend handles RAG):', text);
+
+                const response = await fetch(`${API_BASE}/api/coach/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                showCoachResponse(text, data);
+            } catch (err) {
+                showError(err.message);
+            }
+        }
+
+        // Voice Input
+        function toggleVoice() {
+            if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+                alert('Voice input not supported in this browser');
+                return;
+            }
+
+            const btn = document.getElementById('voiceBtn');
+            const status = document.getElementById('voiceStatus');
+
+            if (recognition && btn.classList.contains('recording')) {
+                recognition.stop();
+                btn.classList.remove('recording');
+                status.textContent = 'Click to start speaking';
+                return;
+            }
+
+            recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = () => {
+                btn.classList.add('recording');
+                status.textContent = 'Listening...';
+            };
+
+            recognition.onresult = (e) => {
+                const text = e.results[0][0].transcript;
+                status.textContent = `Heard: "${text}"`;
+                document.getElementById('textField').value = text;
+                setTimeout(() => submitText(), 500);
+            };
+
+            recognition.onerror = (e) => {
+                status.textContent = 'Error: ' + e.error;
+                btn.classList.remove('recording');
+            };
+
+            recognition.onend = () => {
+                btn.classList.remove('recording');
+            };
+
+            recognition.start();
+        }
+
+        // Image Upload
+        async function handleImage(input) {
+            if (!input.files[0]) return;
+
+            showLoading();
+
+            const formData = new FormData();
+            formData.append('file', input.files[0]);
+
+            try {
+                const response = await fetch(`${API_BASE}/api/food/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    showNutritionResults(data);
+                } else {
+                    throw new Error(data.detail || 'Upload failed');
+                }
+            } catch (err) {
+                showError(err.message);
+            }
+        }
+
+        // Generate Recipe
+        async function generateRecipe() {
+            const ingredients = document.getElementById('ingredientsField').value.trim();
+            if (!ingredients) return;
+
+            showLoading();
+
+            try {
+                const response = await fetch(`${API_BASE}/api/recipe/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ ingredients: ingredients.split('\n').filter(i => i.trim()) })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    showRecipeResults(data);
+                } else {
+                    throw new Error(data.detail || 'Recipe generation failed');
+                }
+            } catch (err) {
+                showError(err.message);
+            }
+        }
+
+        // Display Functions
+        function showLoading() {
+            const results = document.getElementById('resultsSection');
+            const content = document.getElementById('resultsContent');
+            results.classList.add('show');
+            content.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Processing...</p>
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            const results = document.getElementById('resultsSection');
+            const content = document.getElementById('resultsContent');
+            document.getElementById('resultsTitle').textContent = 'Error';
+            document.getElementById('safetyBadge').className = 'safety-badge danger';
+            document.getElementById('safetyBadge').textContent = '✗ Error';
+            content.innerHTML = `<p style="color: var(--danger);">${message}</p>`;
+            results.classList.add('show');
+        }
+
+        function showCoachResponse(question, data) {
+            const results = document.getElementById('resultsSection');
+            const content = document.getElementById('resultsContent');
+            document.getElementById('resultsTitle').textContent = 'AI Coach';
+
+            const badge = document.getElementById('safetyBadge');
+            badge.className = 'safety-badge ' + (data.safety_level === 'safe' ? 'safe' : 'warning');
+            badge.textContent = data.safety_level === 'safe' ? '✓ Safe' : '⚠ ' + data.safety_level;
+
+            content.innerHTML = `
+                <div class="chat-messages">
+                    <div class="chat-message user">${question}</div>
+                    <div class="chat-message bot">${data.message}</div>
+                </div>
+            `;
+            results.classList.add('show');
+        }
+
+        function showNutritionResults(data) {
+            const results = document.getElementById('resultsSection');
+            const content = document.getElementById('resultsContent');
+            document.getElementById('resultsTitle').textContent = 'Food Analysis';
+
+            const badge = document.getElementById('safetyBadge');
+            const verdict = data.safety?.verdict || 'safe';
+            badge.className = 'safety-badge ' + verdict;
+            badge.textContent = verdict === 'safe' ? '✓ Safe' : verdict === 'warning' ? '⚠ Caution' : '✗ Warning';
+
+            const n = data.nutrition || {};
+            const confidence = data.confidence ? Math.round(data.confidence * 100) : 0;
+            content.innerHTML = `
+                <div style="text-align: center; margin-bottom: 24px; padding: 20px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 16px; color: white;">
+                    <div style="font-size: 48px; margin-bottom: 8px;">🍽️</div>
+                    <h2 style="font-size: 28px; margin-bottom: 8px;">${data.food_name || 'Unknown Food'}</h2>
+                    <div style="display: flex; justify-content: center; gap: 16px; font-size: 14px; opacity: 0.9;">
+                        <span>📊 ${confidence}% confidence</span>
+                        <span>📡 Source: ${data.source || 'model'}</span>
+                    </div>
+                </div>
+                <div class="nutrition-grid">
+                    <div class="nutrition-item">
+                        <div class="nutrition-icon">🔥</div>
+                        <div class="nutrition-value">${Math.round(n.calories) || 0}</div>
+                        <div class="nutrition-label">Calories</div>
+                    </div>
+                    <div class="nutrition-item">
+                        <div class="nutrition-icon">🥩</div>
+                        <div class="nutrition-value">${Math.round(n.protein_g) || 0}g</div>
+                        <div class="nutrition-label">Protein</div>
+                    </div>
+                    <div class="nutrition-item">
+                        <div class="nutrition-icon">🍞</div>
+                        <div class="nutrition-value">${Math.round(n.carbs_g) || 0}g</div>
+                        <div class="nutrition-label">Carbs</div>
+                    </div>
+                    <div class="nutrition-item">
+                        <div class="nutrition-icon">🧈</div>
+                        <div class="nutrition-value">${Math.round(n.fat_g) || 0}g</div>
+                        <div class="nutrition-label">Fat</div>
+                    </div>
+                    <div class="nutrition-item">
+                        <div class="nutrition-icon">🍬</div>
+                        <div class="nutrition-value">${Math.round(n.sugar_g) || 0}g</div>
+                        <div class="nutrition-label">Sugar</div>
+                    </div>
+                    <div class="nutrition-item">
+                        <div class="nutrition-icon">🧂</div>
+                        <div class="nutrition-value">${Math.round(n.sodium_mg) || 0}mg</div>
+                        <div class="nutrition-label">Sodium</div>
+                    </div>
+                </div>
+                ${data.safety?.violations?.length ? `
+                    <div style="margin-top: 16px;">
+                        <h4 style="color: var(--warning); margin-bottom: 12px;">⚠️ Warnings</h4>
+                        ${data.safety.violations.map(v => `
+                            <div style="background: #fef3c7; padding: 12px; border-radius: 8px; margin-bottom: 8px;">
+                                <strong>${v.rule_id}</strong>: ${v.message}
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+            `;
+            results.classList.add('show');
+        }
+
+        function showRecipeResults(data) {
+            const results = document.getElementById('resultsSection');
+            const content = document.getElementById('resultsContent');
+            document.getElementById('resultsTitle').textContent = data.recipe_name || 'Generated Recipe';
+
+            const badge = document.getElementById('safetyBadge');
+            badge.className = 'safety-badge safe';
+            badge.textContent = '✓ Safe Recipe';
+
+            content.innerHTML = `
+                <div class="recipe-card">
+                    <h4>Ingredients</h4>
+                    <ul>
+                        ${(data.ingredients || []).map(i => `<li>${i}</li>`).join('')}
+                    </ul>
+                    <h4>Instructions</h4>
+                    <ol>
+                        ${(data.instructions || []).map(i => `<li>${i}</li>`).join('')}
+                    </ol>
+                    ${data.nutrition ? `
+                        <h4 style="margin-top: 16px;">Estimated Nutrition</h4>
+                        <p>Calories: ${data.nutrition.calories} | Protein: ${data.nutrition.protein_g}g | Carbs: ${data.nutrition.carbs_g}g</p>
+                    ` : ''}
+                </div>
+            `;
+            results.classList.add('show');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        // Enter key submit
+        document.getElementById('textField').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') submitText();
+        });
+    </script>
+</body>
+
+</html>

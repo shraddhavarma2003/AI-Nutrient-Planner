@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Medical Report - AI Nutrition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            color: #00d4aa;
+            font-size: 24px;
+        }
+
+        .back-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .upload-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .upload-card h2 {
+            margin-bottom: 10px;
+        }
+
+        .upload-card .subtitle {
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        .drop-zone {
+            border: 2px dashed rgba(0, 212, 170, 0.5);
+            border-radius: 16px;
+            padding: 60px 40px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .drop-zone:hover,
+        .drop-zone.dragover {
+            border-color: #00d4aa;
+            background: rgba(0, 212, 170, 0.1);
+        }
+
+        .drop-zone-icon {
+            font-size: 60px;
+            margin-bottom: 16px;
+        }
+
+        .drop-zone-text {
+            color: #888;
+        }
+
+        .drop-zone-text strong {
+            color: #00d4aa;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .file-preview {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .file-preview.show {
+            display: block;
+        }
+
+        .file-name {
+            color: #00d4aa;
+            font-weight: 600;
+        }
+
+        .file-size {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .upload-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #00d4aa 0%, #00a885 100%);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .upload-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status {
+            margin-top: 24px;
+            padding: 16px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .status.uploading {
+            display: block;
+            background: rgba(0, 212, 170, 0.1);
+            border: 1px solid rgba(0, 212, 170, 0.3);
+            color: #00d4aa;
+        }
+
+        .status.processing {
+            display: block;
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            color: #ffc107;
+        }
+
+        .status.success {
+            display: block;
+            background: rgba(0, 212, 170, 0.1);
+            border: 1px solid rgba(0, 212, 170, 0.3);
+            color: #00d4aa;
+        }
+
+        .status.error {
+            display: block;
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+            color: #ff4757;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #00d4aa;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .result-box {
+            margin-top: 24px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: left;
+            display: none;
+        }
+
+        .result-box.show {
+            display: block;
+        }
+
+        .result-box h4 {
+            color: #00d4aa;
+            margin-bottom: 12px;
+        }
+
+        .result-item {
+            margin: 8px 0;
+            color: #ccc;
+        }
+
+        .result-item strong {
+            color: #fff;
+        }
+
+        .allowed-formats {
+            margin-top: 20px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>🥗 AI Nutrition</h1>
+        <a href="dashboard.html" class="back-btn">← Back to Dashboard</a>
+    </div>
+
+    <div class="container">
+        <div class="upload-card">
+            <h2>📄 Upload Medical Report</h2>
+            <p class="subtitle">We'll extract your health conditions and allergens</p>
+
+            <div class="drop-zone" id="dropZone">
+                <div class="drop-zone-icon">📁</div>
+                <p class="drop-zone-text">
+                    Drag & drop your file here<br>
+                    or <strong>click to browse</strong>
+                </p>
+            </div>
+
+            <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png">
+
+            <div class="file-preview" id="filePreview">
+                <span class="file-name" id="fileName"></span>
+                <span class="file-size" id="fileSize"></span>
+            </div>
+
+            <button class="upload-btn" id="uploadBtn" disabled>Upload & Process</button>
+
+            <div class="status" id="status">
+                <span id="statusText"></span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="result-box" id="resultBox">
+                <h4>✓ Profile Created</h4>
+                <div id="resultContent"></div>
+            </div>
+
+            <div class="allowed-formats">
+                Allowed formats: PDF, JPG, PNG (max 10MB)
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '';
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const filePreview = document.getElementById('filePreview');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const status = document.getElementById('status');
+        const statusText = document.getElementById('statusText');
+        const progressFill = document.getElementById('progressFill');
+        const resultBox = document.getElementById('resultBox');
+        const resultContent = document.getElementById('resultContent');
+
+        let selectedFile = null;
+
+        // Click to browse
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        // Drag and drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length) handleFile(files[0]);
+        });
+
+        // File input change
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) handleFile(fileInput.files[0]);
+        });
+
+        function handleFile(file) {
+            const allowed = ['application/pdf', 'image/jpeg', 'image/png'];
+            if (!allowed.includes(file.type)) {
+                alert('Please upload a PDF or image file');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File too large (max 10MB)');
+                return;
+            }
+
+            selectedFile = file;
+            fileName.textContent = file.name;
+            fileSize.textContent = ` (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+            filePreview.classList.add('show');
+            uploadBtn.disabled = false;
+        }
+
+        // Upload
+        uploadBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            uploadBtn.disabled = true;
+            resultBox.classList.remove('show');
+
+            // Show uploading status
+            status.className = 'status uploading';
+            statusText.textContent = '⬆️ Uploading file...';
+            progressFill.style.width = '30%';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+
+                const response = await fetch(`${API_BASE}/api/medical-report/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+
+                // Show processing status
+                status.className = 'status processing';
+                statusText.textContent = '🔍 Scanning document...';
+                progressFill.style.width = '60%';
+
+                // Check for auth error BEFORE parsing JSON
+                if (response.status === 401) {
+                    alert('Session expired. Please login again.');
+                    localStorage.removeItem('token');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    progressFill.style.width = '100%';
+                    status.className = 'status success';
+                    statusText.textContent = '✓ Medical profile created successfully!';
+
+                    // Show results
+                    resultBox.classList.add('show');
+                    resultContent.innerHTML = `
+                        <div class="result-item"><strong>Conditions:</strong> ${data.profile?.conditions?.join(', ') || 'None detected'}</div>
+                        <div class="result-item"><strong>Allergens:</strong> ${data.profile?.allergens?.join(', ') || 'None detected'}</div>
+                        <div class="result-item" style="margin-top: 16px;">
+                            <a href="dashboard.html" style="color: #00d4aa;">← Return to Dashboard</a>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(data.detail || 'Upload failed');
+                }
+            } catch (err) {
+                status.className = 'status error';
+                statusText.textContent = `❌ Error: ${err.message}`;
+                progressFill.style.width = '0%';
+                uploadBtn.disabled = false;
+
+                // If auth error, redirect to login
+                if (err.message.includes('401') || err.message.includes('auth') || err.message.includes('Unauthorized')) {
+                    alert('Session expired. Please login again.');
+                    localStorage.removeItem('token');
+                    window.location.href = 'login.html';
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

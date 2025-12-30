@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Nutrition Coach</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --bg-card: #252540;
+            --accent-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --accent-primary: #667eea;
+            --accent-secondary: #764ba2;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border-radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .nav {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .nav-tab {
+            padding: 0.5rem 1rem;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .nav-tab:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        .nav-tab.active {
+            background: var(--accent-gradient);
+            color: white;
+        }
+
+        /* Main Content */
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card-header {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Chat Page */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 200px);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 0;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            max-width: 80%;
+        }
+
+        .message.user {
+            background: var(--accent-gradient);
+            margin-left: auto;
+        }
+
+        .message.assistant {
+            background: var(--bg-secondary);
+        }
+
+        .message.blocked {
+            border-left: 4px solid var(--danger);
+        }
+
+        .message.caution {
+            border-left: 4px solid var(--warning);
+        }
+
+        .message.safe {
+            border-left: 4px solid var(--success);
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Dashboard Page */
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            border: 4px solid var(--accent-primary);
+        }
+
+        .score-value {
+            font-size: 3rem;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .score-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .insight-box {
+            padding: 1rem;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--accent-primary);
+        }
+
+        .pattern-list {
+            list-style: none;
+        }
+
+        .pattern-item {
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .pattern-severity {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .severity-high {
+            background: var(--danger);
+        }
+
+        .severity-medium {
+            background: var(--warning);
+        }
+
+        .severity-low {
+            background: var(--success);
+        }
+
+        /* Food Input Page */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .result-box {
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-top: 1rem;
+        }
+
+        .result-allow {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success);
+        }
+
+        .result-warn {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--warning);
+        }
+
+        .result-block {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+        }
+
+        /* User Profile */
+        .profile-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-left: auto;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .condition-tag {
+            padding: 0.25rem 0.5rem;
+            background: var(--accent-gradient);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .main {
+                padding: 1rem;
+            }
+
+            .message {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-brand">🥗 AI Nutrition</div>
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-page="chat">💬 Chat</button>
+            <button class="nav-tab" data-page="dashboard">📊 Dashboard</button>
+            <button class="nav-tab" data-page="food">🍎 Log Food</button>
+        </div>
+        <div class="profile-badge">
+            <span id="user-name">Demo User</span>
+            <span class="condition-tag" id="user-condition">Diabetes</span>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Chat Page -->
+        <div id="page-chat" class="page active">
+            <div class="card chat-container">
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message assistant">
+                        👋 Hi! I'm your AI Nutrition Coach. Ask me anything about food safety, nutrition, or exercise.
+                        Try asking "Is this safe for me?" and share a food!
+                    </div>
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" class="chat-input" id="chat-input" placeholder="Type your message..."
+                        onkeypress="if(event.key==='Enter') sendMessage()">
+                    <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">🍎 Current Food Context</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Food Name</label>
+                        <input type="text" class="form-input" id="food-name" placeholder="e.g., Chocolate Bar">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Calories</label>
+                        <input type="number" class="form-input" id="food-calories" placeholder="250">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Sugar (g)</label>
+                        <input type="number" class="form-input" id="food-sugar" placeholder="28">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Sodium (mg)</label>
+                        <input type="number" class="form-input" id="food-sodium" placeholder="50">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="page-dashboard" class="page">
+            <div class="card">
+                <div class="card-header">🎯 Health Score</div>
+                <div class="score-circle">
+                    <div class="score-value" id="health-score">--</div>
+                    <div class="score-label">out of 100</div>
+                </div>
+                <div id="score-explanation" style="text-align: center; color: var(--text-secondary);"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">💡 Today's Insight</div>
+                <div class="insight-box" id="daily-insight">
+                    Loading insight...
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">📈 Behavior Patterns</div>
+                <ul class="pattern-list" id="patterns-list">
+                    <li class="pattern-item" style="color: var(--text-secondary);">Loading patterns...</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Food Input Page -->
+        <div id="page-food" class="page">
+            <div class="card">
+                <div class="card-header">📝 Log a Meal</div>
+                <div class="form-group">
+                    <label class="form-label">Food Name *</label>
+                    <input type="text" class="form-input" id="log-food-name" placeholder="e.g., Grilled Chicken Salad">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Calories *</label>
+                        <input type="number" class="form-input" id="log-calories" placeholder="350">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Protein (g)</label>
+                        <input type="number" class="form-input" id="log-protein" placeholder="25">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Carbs (g)</label>
+                        <input type="number" class="form-input" id="log-carbs" placeholder="20">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Fat (g)</label>
+                        <input type="number" class="form-input" id="log-fat" placeholder="15">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Sugar (g)</label>
+                        <input type="number" class="form-input" id="log-sugar" placeholder="5">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Fiber (g)</label>
+                        <input type="number" class="form-input" id="log-fiber" placeholder="8">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Sodium (mg)</label>
+                        <input type="number" class="form-input" id="log-sodium" placeholder="400">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-secondary" onclick="analyzeFood()">🔍 Analyze Safety</button>
+                    <button class="btn btn-primary" onclick="logMeal()">📝 Log Meal</button>
+                </div>
+                <div id="food-result"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE = '';
+
+        // Auth check - get token from localStorage
+        const token = localStorage.getItem('token');
+        if (!token) {
+            // Redirect to login if no token
+            window.location.href = 'login.html';
+        }
+
+        // Navigation
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById('page-' + tab.dataset.page).classList.add('active');
+
+                if (tab.dataset.page === 'dashboard') {
+                    loadDashboard();
+                }
+            });
+        });
+
+        // Chat
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // Add user message
+            addMessage(message, 'user');
+            input.value = '';
+
+            try {
+                // Backend handles RAG - auto-fetches food context
+                console.log('[CHAT] Sending message (backend handles RAG)');
+
+                const response = await fetch(API_BASE + '/api/coach/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message }),
+                });
+                const data = await response.json();
+                addMessage(data.message, 'assistant', data.safety_level);
+            } catch (error) {
+                addMessage('Sorry, I encountered an error. Please try again.', 'assistant');
+            }
+        }
+
+        function addMessage(text, role, safetyLevel = '') {
+            const container = document.getElementById('chat-messages');
+            const msg = document.createElement('div');
+            msg.className = `message ${role} ${safetyLevel}`;
+            msg.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            container.appendChild(msg);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Dashboard
+        async function loadDashboard() {
+            try {
+                // Load health score
+                const scoreRes = await fetch(API_BASE + '/api/analytics/score');
+                const score = await scoreRes.json();
+                document.getElementById('health-score').textContent = score.overall_score;
+                document.getElementById('score-explanation').textContent = score.explanation;
+
+                // Load insight
+                const insightRes = await fetch(API_BASE + '/api/analytics/insight');
+                const insight = await insightRes.json();
+                document.getElementById('daily-insight').textContent = insight.insight;
+
+                // Load patterns
+                const patternsRes = await fetch(API_BASE + '/api/analytics/patterns');
+                const patterns = await patternsRes.json();
+                const patternsList = document.getElementById('patterns-list');
+
+                if (patterns.length === 0) {
+                    patternsList.innerHTML = '<li class="pattern-item" style="color: var(--text-secondary);">No patterns detected yet. Keep logging meals!</li>';
+                } else {
+                    patternsList.innerHTML = patterns.map(p => `
+                        <li class="pattern-item">
+                            <span class="pattern-severity severity-${p.severity}">${p.severity}</span>
+                            <div>
+                                <strong>${p.description}</strong>
+                                <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem;">
+                                    ${p.suggestion}
+                                </div>
+                            </div>
+                        </li>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Dashboard load error:', error);
+            }
+        }
+
+        // Food Analysis
+        async function analyzeFood() {
+            const food = getFoodInput();
+            if (!food.name || !food.calories) {
+                alert('Please enter at least food name and calories');
+                return;
+            }
+
+            try {
+                const response = await fetch(API_BASE + '/api/food/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(food),
+                });
+                const data = await response.json();
+
+                const resultClass = data.verdict === 'block' ? 'result-block' :
+                    data.verdict === 'allow' ? 'result-allow' : 'result-warn';
+
+                document.getElementById('food-result').innerHTML = `
+                    <div class="result-box ${resultClass}">
+                        <strong>Analysis Result: ${data.verdict.toUpperCase()}</strong>
+                        <div style="margin-top: 0.5rem; white-space: pre-wrap;">${data.formatted}</div>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('food-result').innerHTML = `
+                    <div class="result-box result-warn">Error analyzing food</div>
+                `;
+            }
+        }
+
+        async function logMeal() {
+            const food = getFoodInput();
+            if (!food.name || !food.calories) {
+                alert('Please enter at least food name and calories');
+                return;
+            }
+
+            try {
+                const response = await fetch(API_BASE + '/api/food/log', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ foods: [food] }),
+                });
+                const data = await response.json();
+
+                document.getElementById('food-result').innerHTML = `
+                    <div class="result-box result-allow">
+                        ✅ Meal logged! (${data.meal_type})<br>
+                        Total: ${data.total_nutrition.calories} calories
+                    </div>
+                `;
+
+                // Clear form
+                ['log-food-name', 'log-calories', 'log-protein', 'log-carbs', 'log-fat', 'log-sugar', 'log-fiber', 'log-sodium'].forEach(id => {
+                    document.getElementById(id).value = '';
+                });
+            } catch (error) {
+                document.getElementById('food-result').innerHTML = `
+                    <div class="result-box result-warn">Error logging meal</div>
+                `;
+            }
+        }
+
+        function getFoodInput() {
+            return {
+                name: document.getElementById('log-food-name').value,
+                calories: parseFloat(document.getElementById('log-calories').value) || 0,
+                protein_g: parseFloat(document.getElementById('log-protein').value) || 0,
+                carbs_g: parseFloat(document.getElementById('log-carbs').value) || 0,
+                fat_g: parseFloat(document.getElementById('log-fat').value) || 0,
+                sugar_g: parseFloat(document.getElementById('log-sugar').value) || 0,
+                fiber_g: parseFloat(document.getElementById('log-fiber').value) || 0,
+                sodium_mg: parseFloat(document.getElementById('log-sodium').value) || 0,
+            };
+        }
+
+        // Load user profile
+        async function loadProfile() {
+            try {
+                const response = await fetch(API_BASE + '/api/user/profile', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const profile = await response.json();
+                document.getElementById('user-name').textContent = profile.name || 'User';
+                const conditions = profile.conditions || [];
+                document.getElementById('user-condition').textContent = conditions.length > 0 ? conditions.join(', ') : 'Healthy';
+            } catch (error) {
+                console.error('Profile load error:', error);
+            }
+        }
+
+        // Init
+        loadProfile();
+    </script>
+</body>
+
+</html>

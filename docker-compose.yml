@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-nutrition
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - PORT=8000
+    volumes:
+      # Persist logs
+      - ./logs:/app/logs
+      # Development: hot reload (comment out for production)
+      # - ./src:/app/src
+      # - ./static:/app/static
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  # Optional: Log aggregation (uncomment if needed)
+  # logs:
+  #   image: datalust/seq:latest
+  #   ports:
+  #     - "5341:80"
+  #   volumes:
+  #     - seq-data:/data
+
+# volumes:
+#   seq-data:
