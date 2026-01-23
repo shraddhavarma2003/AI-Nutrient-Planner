@@ -64,6 +64,24 @@ class ContinentalRetrievalSystem:
     @torch.inference_mode()
     def build_text_index(self):
         """C. Generates and caches text embeddings using prompt ensemble."""
+        cache_path = self.DISHES_PATH.parent / "continental_embeddings.pt"
+        
+        # Try loading from cache first
+        if cache_path.exists():
+            try:
+                logger.info(f"Loading cached text index from {cache_path}...")
+                cached_data = torch.load(cache_path, map_location=self.device)
+                
+                # Validation: Ensure cache matches current dishes
+                if cached_data.get("dish_names") == self.dish_names:
+                    self.text_features = cached_data["features"].to(self.device).to(self.dtype)
+                    logger.info(f"✓ Cache loaded. Shape: {self.text_features.shape}")
+                    return
+                else:
+                    logger.warning("Cache mismatch (dish list changed). Rebuilding index...")
+            except Exception as e:
+                logger.warning(f"Failed to load cache: {e}. Rebuilding...")
+        
         logger.info("Building text embedding index (Offline Stage)...")
         
         # Use only the two requested prompt templates
@@ -73,7 +91,13 @@ class ContinentalRetrievalSystem:
         
         # Batch process for efficiency
         batch_size = 32
+        total_batches = (len(self.dish_names) + batch_size - 1) // batch_size
+        
         for i in range(0, len(self.dish_names), batch_size):
+            batch_num = (i // batch_size) + 1
+            if batch_num % 5 == 0:
+                logger.info(f"Processing batch {batch_num}/{total_batches}...")
+                
             batch_dishes = self.dish_names[i : i + batch_size]
             
             # For each template, compute features
@@ -98,7 +122,18 @@ class ContinentalRetrievalSystem:
             
         # Final cached index: [num_dishes, dim]
         self.text_features = torch.cat(all_features, dim=0)
-        logger.info(f"Text index built. Shape: {self.text_features.shape}")
+        
+        # Save to cache
+        try:
+            torch.save({
+                "dish_names": self.dish_names,
+                "features": self.text_features
+            }, cache_path)
+            logger.info(f"✓ Index built and cached to {cache_path}")
+        except Exception as e:
+            logger.error(f"Failed to save cache: {e}")
+            
+        logger.info(f"Text index ready. Shape: {self.text_features.shape}")
 
     @torch.inference_mode()
     def encode_image(self, pil_image: Image.Image) -> torch.Tensor:

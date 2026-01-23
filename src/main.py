@@ -756,13 +756,19 @@ async def fix_meal_endpoint(request: FixMealRequest, user: dict = Depends(get_op
                         for s in suggestions if s.get("type") == "warning"
                     ])
                     
-                    fix_prompt = f"""Analyze this meal and provide 3 quick, practical fixes.
+                    fix_prompt = f"""Analyze the likely ingredients of '{food_name}' and provide 3 quick, practical fixes.
                     
 MEAL INFO: {food_name}
-ISSUES:
+NUTRITION: {nut_str}
+ISSUES DETECTED:
 {issues_str}
 
-USER CONDITIONS: {', '.join(conditions) if conditions else 'None'}"""
+USER CONDITIONS: {', '.join(conditions) if conditions else 'None'}
+
+INSTRUCTIONS:
+1. Infer the typical ingredients in this dish (e.g., refined flour, oil, sugar).
+2. Explain potential health risks of these specific ingredients for the user's conditions.
+3. Suggest specific swaps (e.g., "Use almond flour instead of wheat")."""
                     
                     llm_response = llm_service.chat(
                         prompt=fix_prompt,
@@ -1463,6 +1469,8 @@ async def upload_food_image(
     if not user:
         user = {"sub": "demo_user_123"}
     
+    user_id = user["sub"]
+    
     print(f"\n[FOOD UPLOAD] ====== Starting food image analysis ======")
     print(f"[FOOD UPLOAD] User: {user.get('sub')}")
     print(f"[FOOD UPLOAD] File: {file.filename} ({file.content_type})")
@@ -1525,6 +1533,29 @@ async def upload_food_image(
                     if lookup:
                         nutrition = lookup
                         print(f"[FOOD UPLOAD] ✓ Nutrition found for {final_food_name}")
+
+                # Build final response
+                
+                # UPDATE CONTEXT FOR AI COACH & LOGGING
+                # This ensures the Chat and Fix Meal features know about this food
+                meal_data = {
+                    "food_name": final_food_name,
+                    "food_group": "Continental",
+                    "resolution": "retrieval",
+                    "nutrition": nutrition.copy(),
+                    "timestamp": datetime.now().isoformat(),
+                    "source": "continental_retrieval",
+                    "confidence": final_confidence,
+                }
+                
+                # Save to user session
+                if user_id not in user_meal_logs:
+                    user_meal_logs[user_id] = []
+                user_meal_logs[user_id].append(meal_data)
+                
+                # Update GLOBAL context for AI Coach
+                current_food_context[user_id] = meal_data
+                print(f"[FOOD UPLOAD] ✓ Context updated for user {user_id}")
 
                 # Build final response
                 return {
