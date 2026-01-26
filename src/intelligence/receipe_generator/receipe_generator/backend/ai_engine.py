@@ -7,10 +7,16 @@ def generate_steps_with_ollama(ingredients):
     prompt = f"""
     Create a healthy recipe using these ingredients: {ingredients}
 
+    Format your response in Markdown:
+    ## Ingredients
+    - [item]
+    
+    ## Instructions
+    1. [step]
+    
     Rules:
     - Use minimal oil
     - Indian home-style cooking
-    - Short numbered steps
     - Healthy and simple
     """
 
@@ -31,9 +37,9 @@ def generate_steps_with_ollama(ingredients):
 
 def generate_recipe_with_llm(ingredients):
     return {
-        "title": "LLM Generated Healthy Recipe",
+        "recipe_name": "LLM Generated Healthy Recipe",
         "ingredients": ingredients,
-        "steps": generate_steps_with_ollama(ingredients),
-        "nutrition": "Low oil, balanced nutrients",
+        "instructions": generate_steps_with_ollama(ingredients),
+        "nutrition": {"calories": 250, "protein_g": 15, "carbs_g": 30, "fat_g": 8},
         "source": "Ollama LLM"
     }

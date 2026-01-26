@@ -1868,58 +1868,82 @@ async def generate_recipe(
         llm_response = llm_service.generate_recipe(request.ingredients, profile)
         
         if llm_response.success:
+            content = llm_response.content.strip()
+            
+            # --- Robust Markdown/JSON Parser ---
+            recipe_name = "AI-Generated Healthy Dish"
+            ingredients_list = request.ingredients
+            instructions_list = []
+            nutrition_data = total_nutrition.copy()
+            health_note = "Recipe tailored to your health profile."
+            
+            # 1. Try JSON parsing as fallback
             try:
-                import json
-                import re
-                
-                content = llm_response.content.strip()
-                
-                # 1. Try finding JSON in code blocks
-                json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', content, re.DOTALL)
+                # Find JSON block
+                json_match = re.search(r'(\{.*\})', content, re.DOTALL)
                 if json_match:
-                    content = json_match.group(1).strip()
-                else:
-                    # 2. Try finding the first { and last }
-                    start = content.find('{')
-                    end = content.rfind('}')
-                    if start != -1 and end != -1:
-                        content = content[start:end+1].strip()
+                    data = json.loads(json_match.group(1))
+                    recipe_name = data.get("name") or data.get("recipe_name") or recipe_name
+                    ingredients_list = data.get("ingredients") or ingredients_list
+                    instructions_list = data.get("instructions") or data.get("steps") or []
+                    nutrition_data = data.get("nutrition") or nutrition_data
+                    health_note = data.get("health_note") or health_note
+            except:
+                pass
+
+            # 2. Markdown Parsing (Extracting by headers)
+            if not instructions_list:
+                # Extract Title (# Title)
+                title_match = re.search(r'^#\s*(.*)', content, re.MULTILINE)
+                if title_match:
+                    recipe_name = title_match.group(1).strip()
                 
-                recipe_data = json.loads(content)
-                print(f"[RECIPE] Successfully parsed AI JSON recipe: {recipe_data.get('name')}")
+                # Split content into sections
+                sections = re.split(r'\n##?\s+', content)
                 
-                # Ensure ingredients and instructions are lists for the frontend
-                ingredients = recipe_data.get("ingredients", request.ingredients)
-                if isinstance(ingredients, str): ingredients = [ingredients]
+                for section in sections:
+                    lines = [l.strip("- ").strip("123456789. ") for l in section.split('\n') if l.strip()]
+                    if not lines: continue
+                    
+                    header = lines[0].lower()
+                    
+                    if "ingredient" in header:
+                        ingredients_list = lines[1:]
+                    elif "instruction" in header or "preparation" in header or "method" in header or "step" in header:
+                        # Strip common prefixes like '1.', '2)', '-', etc.
+                        instructions_list = [re.sub(r'^[\d\.\-\)\s]+', '', l) for l in lines[1:] if l.strip()]
+                    elif "nutrition" in header:
+                        # Extract basic metrics from lines
+                        for line in lines[1:]:
+                            line_lower = line.lower()
+                            val_match = re.search(r'(\d+)', line)
+                            if val_match:
+                                val = float(val_match.group(1))
+                                if "cal" in line_lower: nutrition_data["calories"] = val
+                                elif "protein" in line_lower: nutrition_data["protein_g"] = val
+                                elif "carb" in line_lower: nutrition_data["carbs_g"] = val
+                                elif "fat" in line_lower: nutrition_data["fat_g"] = val
                 
-                instructions = recipe_data.get("instructions") or recipe_data.get("steps") or recipe_data.get("preparation") or recipe_data.get("method") or []
-                if isinstance(instructions, str): instructions = [instructions]
-                if not instructions: instructions = ["No instructions generated via AI. Please try again."]
-                
-                return {
-                    "status": "success",
-                    "recipe_name": recipe_data.get("name", "AI-Generated Healthy Dish"),
-                    "ingredients": ingredients,
-                    "instructions": instructions,
-                    "nutrition": recipe_data.get("nutrition", total_nutrition),
-                    "serves": 2,
-                    "powered_by": "ollama_gemma",
-                    "health_note": recipe_data.get("health_note", "Recipe tailored to your health profile.")
-                }
-            except Exception as e:
-                print(f"[RECIPE] AI JSON parsing failed: {e}. Falling back to raw content.")
-                # Even if parsing fails, split by lines to avoid one massive block
-                raw_lines = [line.strip() for line in llm_response.content.split('\n') if line.strip()]
-                return {
-                    "status": "success",
-                    "recipe_name": f"AI-Generated Healthy Dish",
-                    "ingredients": request.ingredients,
-                    "instructions": raw_lines, 
-                    "nutrition": total_nutrition,
-                    "serves": 2,
-                    "powered_by": "ollama_gemma",
-                    "health_note": "Recipe tailored to your health profile."
-                }
+                # Health Note (extract intro paragraph)
+                if "##" in content:
+                    intro = content.split("##")[0].split("\n")
+                    if len(intro) > 1:
+                        health_note = " ".join([l.strip() for l in intro[1:] if l.strip()])
+            
+            # Final fallback: if still no instructions, use raw lines
+            if not instructions_list:
+                instructions_list = [l.strip() for l in content.split('\n') if l.strip()]
+
+            return {
+                "status": "success",
+                "recipe_name": recipe_name,
+                "ingredients": ingredients_list,
+                "instructions": instructions_list,
+                "nutrition": nutrition_data,
+                "serves": 2,
+                "powered_by": "ollama_gemma",
+                "health_note": health_note
+            }
         else:
             print(f"[RECIPE] AI generation failed, falling back: {llm_response.error}")
 

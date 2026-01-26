@@ -900,11 +900,11 @@
                 const data = await response.json();
 
                 // Check if bio-metrics are missing
-                // if (!data.bio_metrics || !data.bio_metrics.age || !data.bio_metrics.weight_kg) {
-                //    // Optional: Show a notification instead of forcing redirect
-                //    // window.location.href = 'setup-profile.html';
-                //    console.log("Bio-metrics missing, but allowing dashboard access.");
-                // }
+                if (!data.bio_metrics || !data.bio_metrics.age || !data.bio_metrics.weight_kg) {
+                    console.log("Bio-metrics missing, forcing redirect to setup-profile.");
+                    window.location.href = 'setup-profile.html';
+                    return;
+                }
 
                 updateProfileUI(data);
             } catch (err) {

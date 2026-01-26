@@ -13,10 +13,10 @@ def get_recipe():
 
     if api_recipe:
         return jsonify({
-            "title": api_recipe.get("title", "Healthy Recipe"),
+            "recipe_name": api_recipe.get("title") or api_recipe.get("recipe_name") or "Healthy Recipe",
             "ingredients": api_recipe.get("ingredients", ingredients),
-            "steps": api_recipe.get("instructions", []),
-            "nutrition": api_recipe.get("nutrition", {}),
+            "instructions": api_recipe.get("instructions") or api_recipe.get("steps") or [],
+            "nutrition": api_recipe.get("nutrition") if isinstance(api_recipe.get("nutrition"), dict) else {"calories": 0},
             "source": "Recipe API"
         })
 
