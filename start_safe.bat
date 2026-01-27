@@ -1,6 +1,6 @@
 @echo off
 echo ===================================================
-echo AI Nutrition Safe Launcher (Port 8080)
+echo AI Nutrition Safe Launcher (Port 8081)
 echo ===================================================
 echo.
 echo Attempting to start server...
@@ -9,8 +9,8 @@ echo.
 set PYTHONPATH=%~dp0
 echo PYTHONPATH set to: %PYTHONPATH%
 
-echo Trying 'python'...
-python src/main.py
+echo Trying 'venv python'...
+venv\Scripts\python src/main.py
 if %ERRORLEVEL% EQU 0 goto success
 
 echo.

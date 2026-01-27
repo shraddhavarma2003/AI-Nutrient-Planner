@@ -18,6 +18,10 @@ pypdf>=3.17.0
 
 # LLM (Ollama via HTTP)
 requests>=2.31.0
+langchain>=0.1.0
+langchain-classic>=0.1.0
+langchain-community>=0.0.10
+langchain-ollama>=0.0.1
 
 # YOLO Food Recognition
 ultralytics>=8.0.0

@@ -715,6 +715,85 @@
             background: #fecaca;
             transform: scale(1.05);
         }
+
+        /* Date Selector Bar */
+        .date-selector-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 12px 20px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .date-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .date-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-grow: 1;
+        }
+
+        .date-input {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--text);
+            background: white;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .date-input:focus {
+            border-color: var(--primary);
+        }
+
+        .date-nav-btn {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .date-nav-btn:hover {
+            background: var(--bg);
+            border-color: var(--primary);
+        }
+
+        .today-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .today-btn:hover {
+            opacity: 0.9;
+        }
     </style>
 </head>
 
@@ -786,9 +865,20 @@
                 </div>
             </section>
 
+            <!-- Date Selector -->
+            <div class="date-selector-bar">
+                <span class="date-label">📅 Selected Date:</span>
+                <div class="date-input-wrapper">
+                    <button class="date-nav-btn" onclick="adjustDate(-1)" title="Previous Day">◀</button>
+                    <input type="date" id="dashboardDatePicker" class="date-input" onchange="handleDateChange()">
+                    <button class="date-nav-btn" onclick="adjustDate(1)" title="Next Day">▶</button>
+                </div>
+                <button class="today-btn" onclick="goToToday()">Go to Today</button>
+            </div>
+
             <!-- Nutrition Snapshot -->
             <section class="nutrition-snapshot card">
-                <p class="section-title">Today's Nutrition</p>
+                <p class="section-title" id="snapshotTitle">Today's Nutrition</p>
                 <div id="nutritionContent">
                     <div class="calorie-display">
                         <div class="calorie-ring">
@@ -873,28 +963,31 @@
                 </div>
             </section>
 
-            <!-- Exercise Guidance AI Section -->
+            <!-- Intelligent AI Assistant Section -->
             <section class="nutrition-snapshot" style="margin-top: 24px;">
-                <p class="section-title">🏋️ Exercise Guidance AI</p>
+                <p class="section-title">🤖 Intelligent AI Assistant</p>
                 <div class="card" style="padding: 16px;">
-                    <div id="exerciseMessages" style="max-height: 200px; overflow-y: auto; margin-bottom: 12px;">
+                    <div id="aiAgentMessages"
+                        style="max-height: 250px; overflow-y: auto; margin-bottom: 12px; scroll-behavior: smooth;">
                         <div class="exercise-msg ai"
                             style="background: #f0f9ff; padding: 12px; border-radius: 8px; margin-bottom: 8px;">
-                            <strong>Exercise AI:</strong> I'm your fitness guide! Ask me about calories burned, exercise
-                            recommendations, weight loss tips, or strength training.
+                            <strong>AI Assistant:</strong> I'm your health coordinator! I can check your nutrition
+                            stats, suggest meal fixes, generate recipes, or give exercise advice. How can I help you
+                            today?
                         </div>
                     </div>
                     <div style="display: flex; gap: 8px;">
-                        <input type="text" id="exerciseInput" placeholder="Ask about exercise..."
+                        <input type="text" id="aiAgentInput"
+                            placeholder="Ask anything about your nutrition or fitness..."
                             style="flex: 1; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;"
-                            onkeypress="if(event.key==='Enter') sendExerciseMessage()">
-                        <button onclick="sendExerciseMessage()"
-                            style="padding: 10px 18px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500;">
-                            Ask 💪
+                            onkeypress="if(event.key==='Enter') sendAgentMessage()">
+                        <button onclick="sendAgentMessage()"
+                            style="padding: 10px 18px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500;">
+                            Send 🚀
                         </button>
                     </div>
                     <div style="margin-top: 8px; font-size: 11px; color: var(--text-muted);">
-                        Try: "How many calories does running burn?" or "How to build muscle?"
+                        Try: "What's my calorie intake today?" or "Give me a recipe with chicken and broccoli"
                     </div>
                 </div>
             </section>
@@ -939,23 +1032,7 @@
                 </div>
             </div>
 
-            <div class="card quick-stats">
-                <p class="section-title">Medical Vitals</p>
-                <div id="vitalsContent">
-                    <div class="stat-row">
-                        <span class="stat-label">🩸 Glucose Level</span>
-                        <span class="stat-value" id="glucoseLevel">--</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-label">💊 Cholesterol</span>
-                        <span class="stat-value" id="cholesterol">--</span>
-                    </div>
-                    <div class="stat-row" style="margin-top: 8px;">
-                        <span class="stat-label" style="font-size: 11px; color: var(--text-muted);">From medical
-                            report</span>
-                    </div>
-                </div>
-            </div>
+
 
             <div class="card recent-meals">
                 <h4>Recent Meals</h4>
@@ -974,9 +1051,11 @@
     <script>
         // Auth
         const token = localStorage.getItem('token');
-        if (!token) window.location.href = 'login.html';
+        let userProfile = null;
+        let selectedDate = new Date().toISOString().split('T')[0];
 
-        let userProfile = null; // Global profile storage
+        // Ensure token exists
+        if (!token) window.location.href = 'login.html';
 
         const userName = localStorage.getItem('user_name') || 'User';
         document.getElementById('userName').textContent = userName;
@@ -1032,10 +1111,81 @@
                 userProfile = data; // Store globally
                 updateProfileUI(data);
 
-                // Load meals AFTER profile to ensure targets are ready
-                loadTodayMeals();
+                // Initialize date picker
+                document.getElementById('dashboardDatePicker').value = selectedDate;
+
+                // Load summary stats and meals for the selected date
+                loadDashboardData();
             } catch (err) {
                 console.error('Profile load error:', err);
+            }
+        }
+
+        async function loadTodayMeals() {
+            try {
+                console.log(`Loading meals for ${selectedDate}...`);
+                const response = await fetch(`/api/meals/today?date=${selectedDate}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.status === 401) window.location.href = 'login.html';
+                const data = await response.json();
+
+                const meals = data.meals || [];
+                updateNutritionUI(meals);
+                updateMealsUI(meals);
+            } catch (err) {
+                console.error('Meals load error:', err);
+            }
+        }
+
+        // Unified data loader for current selected date
+        function loadDashboardData() {
+            const isToday = selectedDate === new Date().toISOString().split('T')[0];
+            document.getElementById('snapshotTitle').textContent = isToday ? "Today's Nutrition" : `Nutrition for ${formatDisplayDate(selectedDate)}`;
+
+            loadDailyStats();
+            loadTodayMeals();
+        }
+
+        function formatDisplayDate(dateStr) {
+            const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+            return new Date(dateStr).toLocaleDateString(undefined, options);
+        }
+
+        // Date selector handlers
+        function handleDateChange() {
+            selectedDate = document.getElementById('dashboardDatePicker').value;
+            loadDashboardData();
+        }
+
+        function adjustDate(days) {
+            const date = new Date(selectedDate);
+            date.setDate(date.getDate() + days);
+            selectedDate = date.toISOString().split('T')[0];
+            document.getElementById('dashboardDatePicker').value = selectedDate;
+            loadDashboardData();
+        }
+
+        function goToToday() {
+            selectedDate = new Date().toISOString().split('T')[0];
+            document.getElementById('dashboardDatePicker').value = selectedDate;
+            loadDashboardData();
+        }
+
+        // Load daily aggregated stats from API
+        async function loadDailyStats() {
+            try {
+                console.log(`Loading daily stats for ${selectedDate}...`);
+                const response = await fetch(`/api/daily-stats?date=${selectedDate}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const stats = await response.json();
+                    updateDailyStatsUI(stats);
+                }
+            } catch (err) {
+                console.error('Daily stats load error:', err);
             }
         }
 
@@ -1083,44 +1233,68 @@
                 const cholesterol = profile.vitals.cholesterol;
 
                 if (glucose) {
-                    document.getElementById('glucoseLevel').textContent = glucose + ' mg/dL';
                     document.getElementById('vitalGlucose').textContent = 'Glucose: ' + glucose;
                 }
                 if (cholesterol) {
-                    document.getElementById('cholesterol').textContent = cholesterol + ' mg/dL';
                     document.getElementById('vitalCholesterol').textContent = 'Cholesterol: ' + cholesterol;
                 }
             }
         }
 
-        // Load today's meals from API
-        async function loadTodayMeals() {
-            try {
-                console.log("Loading meals from /api/meals/today...");
-                // Add timestamp to prevent caching
-                const response = await fetch(`/api/meals/today?t=${new Date().getTime()}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+        function updateDailyStatsUI(stats) {
+            // Update Nutrition UI with aggregated totals
+            const targetCalories = stats.calories_target || 2000;
+            const currentCals = Math.round(stats.calories_consumed || 0);
+            const goalCals = Math.round(targetCalories);
 
-                if (response.status === 401) {
-                    window.location.href = 'login.html';
-                    return;
-                }
+            document.getElementById('calorieValue').innerHTML = `
+                <div style="font-size: 24px; line-height: 1;">${currentCals}</div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">/ ${goalCals}</div>
+            `;
 
-                if (!response.ok) {
-                    console.error("Meal fetch failed:", response.status);
-                    return;
-                }
+            // Update calorie ring
+            const caloriePercent = Math.min(currentCals / goalCals, 1);
+            const circumference = 2 * Math.PI * 42;
+            document.getElementById('calorieRing').setAttribute('stroke-dasharray',
+                `${caloriePercent * circumference} ${circumference}`);
 
-                const data = await response.json();
-                console.log("Received meals:", data);
+            // Update macro bars
+            const targetProtein = userProfile?.daily_targets?.protein_g || 80;
+            const targetCarbs = userProfile?.daily_targets?.carbs_g || 250;
+            const targetFat = userProfile?.daily_targets?.fat_g || 65;
 
-                const meals = data.meals || [];
-                updateNutritionUI(meals);
-                updateMealsUI(meals);
-            } catch (err) {
-                console.error('Meals load error:', err);
-            }
+            const proteinPercent = Math.min((stats.protein_g / targetProtein) * 100, 100);
+            const carbsPercent = Math.min((stats.carbs_g / targetCarbs) * 100, 100);
+            const fatPercent = Math.min((stats.fat_g / targetFat) * 100, 100);
+
+            setTimeout(() => {
+                document.getElementById('proteinBar').style.width = proteinPercent + '%';
+                document.getElementById('carbsBar').style.width = carbsPercent + '%';
+                document.getElementById('fatBar').style.width = fatPercent + '%';
+            }, 100);
+
+            document.getElementById('proteinValue').textContent = `${Math.round(stats.protein_g)} / ${Math.round(targetProtein)}g`;
+            document.getElementById('carbsValue').textContent = `${Math.round(stats.carbs_g)} / ${Math.round(targetCarbs)}g`;
+            document.getElementById('fatValue').textContent = `${Math.round(stats.fat_g)} / ${Math.round(targetFat)}g`;
+
+            // Update Water UI
+            refreshWaterUI(stats.water_cups);
+
+            // Update Stats Content (Today's Stats card)
+            document.getElementById('statsContent').innerHTML = `
+                <div class="stat-row">
+                    <span class="stat-label">Meals Logged</span>
+                    <span class="stat-value" id="mealsCount">${document.getElementById('mealsCount').textContent}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Calories Burned</span>
+                    <span class="stat-value">${Math.round(stats.calories_burned)} kcal</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Water</span>
+                    <span class="stat-value">${stats.water_cups} Cups</span>
+                </div>
+            `;
         }
 
         function updateNutritionUI(meals) {
@@ -1171,6 +1345,7 @@
             document.getElementById('nutritionMessage').textContent = 'Personalized for your profile';
 
             // Update calorie ring (Dynamic Goal)
+            // (Handled by loadDailyStats for better consistency, but kept here for immediate response)
             const caloriePercent = Math.min(totals.calories / targetCalories, 1);
             const circumference = 2 * Math.PI * 42;
             document.getElementById('calorieRing').setAttribute('stroke-dasharray',
@@ -1191,6 +1366,10 @@
             document.getElementById('proteinValue').textContent = `${Math.round(totals.protein)} / ${Math.round(targetProtein)}g`;
             document.getElementById('carbsValue').textContent = `${Math.round(totals.carbs)} / ${Math.round(targetCarbs)}g`;
             document.getElementById('fatValue').textContent = `${Math.round(totals.fat)} / ${Math.round(targetFat)}g`;
+
+            // Sync with sidebar stats
+            const loggedMealsCount = meals.length;
+            document.getElementById('mealsCount').textContent = loggedMealsCount;
 
             // Show AI note if needed
             if (totals.calories > 1800) {
@@ -1319,9 +1498,12 @@
         animate();
 
         // Exercise Guidance AI Chat
-        async function sendExerciseMessage() {
-            const input = document.getElementById('exerciseInput');
-            const messagesDiv = document.getElementById('exerciseMessages');
+        // Universal AI Agent Chat Logic
+        let agentChatHistory = [];
+
+        async function sendAgentMessage() {
+            const input = document.getElementById('aiAgentInput');
+            const messagesDiv = document.getElementById('aiAgentMessages');
             const message = input.value.trim();
 
             if (!message) return;
@@ -1344,13 +1526,16 @@
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
             try {
-                const response = await fetch('/api/exercise/chat', {
+                const response = await fetch('/api/coach/chat', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ message })
+                    body: JSON.stringify({
+                        message: message,
+                        history: agentChatHistory
+                    })
                 });
 
                 if (response.status === 401) {
@@ -1361,21 +1546,31 @@
 
                 const data = await response.json();
 
-                // Remove loading and add response
-                document.getElementById(loadingId).remove();
+                // Remove loading
+                const loadingEl = document.getElementById(loadingId);
+                if (loadingEl) loadingEl.remove();
 
-                // Convert markdown-like formatting
-                let formattedMsg = data.message
+                // Convert basic markdown formatting
+                let formattedMsg = (data.message || "Sorry, I couldn't process that.")
                     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                     .replace(/\n/g, '<br>');
 
                 messagesDiv.innerHTML += `
                     <div class="exercise-msg ai" style="background: #f0f9ff; padding: 12px; border-radius: 8px; margin-bottom: 8px;">
-                        <strong>Exercise AI:</strong><br>${formattedMsg}
+                        <strong>AI Assistant:</strong><br>${formattedMsg}
                     </div>
                 `;
+
+                // Update history (simplified)
+                agentChatHistory.push({ role: "user", content: message });
+                agentChatHistory.push({ role: "assistant", content: data.message });
+
+                // Keep history reasonable
+                if (agentChatHistory.length > 10) agentChatHistory = agentChatHistory.slice(-10);
+
             } catch (error) {
-                document.getElementById(loadingId).remove();
+                const loadingEl = document.getElementById(loadingId);
+                if (loadingEl) loadingEl.remove();
                 messagesDiv.innerHTML += `
                     <div class="exercise-msg error" style="background: #fee2e2; padding: 12px; border-radius: 8px; margin-bottom: 8px;">
                         Error: Could not get response. Please try again.
@@ -1387,24 +1582,27 @@
         }
         // Water Tracking Logic
         function initWaterTracker() {
-            const today = new Date().toDateString();
-            let waterData = JSON.parse(localStorage.getItem('waterTracker') || '{}');
-
-            // Reset if different day
-            if (waterData.lastUpdate !== today) {
-                waterData = { count: 0, lastUpdate: today };
-                localStorage.setItem('waterTracker', JSON.stringify(waterData));
-            }
-
-            refreshWaterUI(waterData.count);
+            // Now fully handled by loadDailyStats()
         }
 
-        function updateWater(delta) {
-            let waterData = JSON.parse(localStorage.getItem('waterTracker') || '{}');
-            waterData.count = Math.max(0, (waterData.count || 0) + delta);
-            waterData.lastUpdate = new Date().toDateString();
-            localStorage.setItem('waterTracker', JSON.stringify(waterData));
-            refreshWaterUI(waterData.count);
+        async function updateWater(delta) {
+            try {
+                const response = await fetch('/api/water/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ delta })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    refreshWaterUI(data.water_cups);
+                }
+            } catch (err) {
+                console.error('Water update error:', err);
+            }
         }
 
         function refreshWaterUI(count) {

@@ -17,7 +17,7 @@ echo.
 echo [3/3] Starting the Server...
 echo.
 echo Please keep this window OPEN. 
-echo You can access the app at: http://localhost:8000/static/app.html
+echo You can access the app at: http://localhost:8081/static/app.html
 echo.
 python src/main.py
 if %ERRORLEVEL% NEQ 0 (

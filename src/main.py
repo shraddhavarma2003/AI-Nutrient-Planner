@@ -14,7 +14,7 @@ Provides REST API endpoints for:
 from dotenv import load_dotenv
 load_dotenv()
 
-from fastapi import FastAPI, HTTPException, Header, UploadFile, File, Depends
+from fastapi import FastAPI, HTTPException, Header, UploadFile, File, Depends, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -58,7 +58,10 @@ from coach.virtual_coach import VirtualCoach
 from analytics.analytics_service import AnalyticsService, MealLogStore
 from feedback.feedback_service import FeedbackService, FeedbackStore
 from auth.auth_service import auth_service
-from auth.database import MedicalProfileRepository, UploadRepository, MealRepository
+from auth.database import (
+    init_database, UserRepository, MedicalProfileRepository, 
+    UploadRepository, MealRepository, DailyLogRepository
+)
 from services.llm_service import get_mistral_service, get_llm_service
 from services.rag_service import get_rag_service
 from services.llm_service import get_mistral_service, get_llm_service
@@ -71,10 +74,28 @@ from services.nutrition_registry import get_nutrition_registry
 # APP SETUP
 # =============================================================================
 
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Foundational startup: database init and eager model loading."""
+    print("[STARTUP] Initializing database...")
+    from auth.database import init_database
+    init_database()
+    
+    print("[STARTUP] Warming up Continental Food Retrieval System (CLIP)...")
+    # Eager load the new CLIP retrieval system
+    continental_system = get_continental_retrieval_system()
+    print("[STARTUP] System READY!")
+    
+    yield
+    print("[SHUTDOWN] Cleaning up resources...")
+
 app = FastAPI(
     title="AI Nutrition API",
     description="Context-aware nutrition guidance with medical safety",
     version="3.0.0",
+    lifespan=lifespan,
 )
 
 # CORS for frontend
@@ -86,21 +107,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files
-static_path = os.path.join(os.path.dirname(__file__), "..", "static")
-app.mount("/static", StaticFiles(directory=static_path), name="static")
+# Mount static files (Robust Pathing)
+from pathlib import Path
+static_path = Path(__file__).parent.parent / "static"
+static_path_vals = str(static_path.resolve())
+print(f"[STARTUP] Mounting static files from: {static_path_vals}")
 
-@app.on_event("startup")
-async def startup_event():
-    """Foundational startup: database init and eager model loading."""
-    print("[STARTUP] Initializing database...")
-    from auth.database import init_database
-    init_database()
-    
-    print("[STARTUP] Warming up Continental Food Retrieval System (CLIP)...")
-    # Eager load the new CLIP retrieval system
-    continental_system = get_continental_retrieval_system()
-    print("[STARTUP] System READY!")
+if not os.path.exists(static_path_vals):
+    print(f"[STARTUP] WARNING: Static directory does not exist at {static_path_vals}")
+    alt_path = Path(os.getcwd()) / "static"
+    if alt_path.exists():
+        print(f"[STARTUP] Falling back to: {alt_path}")
+        static_path_vals = str(alt_path.resolve())
+
+app.mount("/static", StaticFiles(directory=static_path_vals), name="static")
 
 
 # =============================================================================
@@ -312,6 +332,8 @@ async def health_check():
 @app.post("/api/coach/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest, user: dict = Depends(get_current_user)):
     """Chat with the Virtual Coach using RAG + Mistral LLM."""
+    with open("debug_chat.log", "a") as f:
+        f.write(f"[{datetime.now()}] Chat called: {request.message}\n")
     try:
         user_id = user["sub"]
         
@@ -1824,20 +1846,20 @@ async def upload_food_image(
 # =============================================================================
 
 @app.get("/api/meals/today")
-async def get_today_meals(user: dict = Depends(get_current_user)):
+async def get_today_meals(date: Optional[str] = None, user: dict = Depends(get_current_user)):
     """
-    Get all meals logged today by the current user.
+    Get all meals logged on a specific date (defaults to today).
     """
     user_id = user["sub"]
-    today = datetime.now().date()
+    target_date = date or datetime.now().strftime("%Y-%m-%d")
     
     # Get persistent meals from DB
-    today_meals = MealRepository.get_today_meals(user_id)
+    meals = MealRepository.get_meals_by_date(user_id, target_date)
     
     return {
-        "meals": today_meals,
-        "count": len(today_meals),
-        "date": today.isoformat(),
+        "meals": meals,
+        "count": len(meals),
+        "date": target_date,
     }
 
 
@@ -1848,6 +1870,51 @@ async def clear_meals(user: dict = Depends(get_current_user)):
     if user_id in user_meal_logs:
         user_meal_logs[user_id] = []
     return {"message": "Meals cleared"}
+
+
+async def get_daily_stats(date: Optional[str] = None, user: dict = Depends(get_current_user)):
+    """Fetch aggregated daily stats for a specific date (defaults to today)."""
+    user_id = user["sub"]
+    date_str = date or datetime.now().strftime("%Y-%m-%d")
+    
+    stats = DailyLogRepository.get_or_create(user_id, date_str)
+    
+    # Matching dashboard values exactly
+    return {
+        "calories_consumed": stats.get("calories_consumed", 0),
+        "calories_burned": stats.get("calories_burned", 0),
+        "calories_target": stats.get("calories_target", 2000),
+        "protein_g": stats.get("protein_g", 0),
+        "carbs_g": stats.get("carbs_g", 0),
+        "fat_g": stats.get("fat_g", 0),
+        "water_cups": stats.get("water_cups", 0),
+        "water_target": stats.get("water_target", 8),
+        "date": date_str
+    }
+
+
+@app.post("/api/water/update")
+async def update_water(delta: int = Body(..., embed=True), user: dict = Depends(get_current_user)):
+    """Increment or decrement water intake."""
+    user_id = user["sub"]
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    
+    DailyLogRepository.update_water(user_id, date_str, delta)
+    stats = DailyLogRepository.get_or_create(user_id, date_str)
+    
+    return {"status": "success", "water_cups": stats["water_cups"]}
+
+
+@app.post("/api/exercise/log")
+async def log_exercise(calories: float = Body(..., embed=True), user: dict = Depends(get_current_user)):
+    """Record burned calories."""
+    user_id = user["sub"]
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    
+    DailyLogRepository.log_exercise(user_id, date_str, calories)
+    stats = DailyLogRepository.get_or_create(user_id, date_str)
+    
+    return {"status": "success", "calories_burned": stats["calories_burned"]}
 
 
 @app.get("/api/debug/dump")
@@ -2108,4 +2175,4 @@ async def get_analytics_summary(user: dict = Depends(get_current_user)):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8081)

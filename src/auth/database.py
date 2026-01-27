@@ -81,6 +81,24 @@ def init_database():
             )
         """)
         
+        # Daily logs table for performance and persistence
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS daily_logs (
+                user_id TEXT NOT NULL,
+                date TEXT NOT NULL,
+                calories_consumed REAL DEFAULT 0,
+                calories_burned REAL DEFAULT 0,
+                calories_target REAL DEFAULT 2000,
+                protein_g REAL DEFAULT 0,
+                carbs_g REAL DEFAULT 0,
+                fat_g REAL DEFAULT 0,
+                water_cups INTEGER DEFAULT 0,
+                water_target INTEGER DEFAULT 8,
+                PRIMARY KEY (user_id, date),
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        """)
+        
         # Migrations: Add new columns if they don't exist
         new_columns = [
             ("age", "INTEGER"),
@@ -334,6 +352,14 @@ class MealRepository:
                 conn.commit()
                 MealRepository._log_debug("CREATE SUCCESS")
                 print("[DB DEBUG] Meal saved successfully")
+                
+                # Update daily log summary
+                try:
+                    date_str = ts.strftime("%Y-%m-%d")
+                    DailyLogRepository.update_nutrition(user_id, date_str, nutrition)
+                except Exception as de:
+                    print(f"[DB] Error updating daily summary: {de}")
+                    
                 return True
         except Exception as e:
             MealRepository._log_debug(f"CREATE ERROR: {e}")
@@ -341,10 +367,9 @@ class MealRepository:
             return False
 
     @staticmethod
-    def get_today_meals(user_id: str) -> List[Dict[str, Any]]:
-        """Get meals logged today."""
-        # Filter in Python to avoid SQLite timezone/date parsing issues
-        target_date_prefix = datetime.now().strftime("%Y-%m-%d")
+    def get_meals_by_date(user_id: str, date_str: Optional[str] = None) -> List[Dict[str, Any]]:
+        """Get meals logged on a specific date (defaults to today)."""
+        target_date_prefix = date_str or datetime.now().strftime("%Y-%m-%d")
         print(f"[DB DEBUG] Fetching meals for {user_id}. Target prefix: {target_date_prefix}")
         MealRepository._log_debug(f"GET START: {user_id} prefix={target_date_prefix}")
         
@@ -355,7 +380,7 @@ class MealRepository:
                 SELECT * FROM meal_logs 
                 WHERE user_id = ? 
                 ORDER BY timestamp DESC
-                LIMIT 50
+                LIMIT 100
             """, (user_id,))
             
             rows = cursor.fetchall()
@@ -364,11 +389,8 @@ class MealRepository:
             
             results = []
             for row in rows:
-                # Check if timestamp (string) starts with today's date
+                # Check if timestamp (string) starts with selected date
                 ts = row['timestamp'] # e.g. "2024-05-21T12:00:00.000"
-                
-                # Debug print first few chars
-                # print(f"  > Checking row: {ts}")
                 
                 if ts and ts.startswith(target_date_prefix):
                     item = dict(row)
@@ -379,7 +401,7 @@ class MealRepository:
                         item['nutrition'] = {}
                     results.append(item)
             
-            print(f"[DB DEBUG] Returning {len(results)} valid matches for today")
+            print(f"[DB DEBUG] Returning {len(results)} valid matches for {target_date_prefix}")
             MealRepository._log_debug(f"GET DONE: Returning {len(results)} matches")
             return results
 
@@ -389,6 +411,100 @@ class MealRepository:
         with get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("DELETE FROM meal_logs WHERE user_id = ?", (user_id,))
+            conn.commit()
+
+
+class DailyLogRepository:
+    """Repository for daily log operations."""
+
+    @staticmethod
+    def get_or_create(user_id: str, date_str: str) -> Dict[str, Any]:
+        """Get or create a daily log for a specific date."""
+        with get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT * FROM daily_logs WHERE user_id = ? AND date = ?",
+                (user_id, date_str)
+            )
+            row = cursor.fetchone()
+            if row:
+                return dict(row)
+            
+            # Create if not exists
+            # Try to get target from profile
+            profile = MedicalProfileRepository.get_by_user_id(user_id)
+            target_cals = 2000
+            if profile and profile.get('daily_targets'):
+                target_cals = profile['daily_targets'].get('calories', 2000)
+
+            cursor.execute("""
+                INSERT INTO daily_logs (user_id, date, calories_target)
+                VALUES (?, ?, ?)
+            """, (user_id, date_str, target_cals))
+            conn.commit()
+            
+            return {
+                "user_id": user_id,
+                "date": date_str,
+                "calories_consumed": 0,
+                "calories_burned": 0,
+                "calories_target": target_cals,
+                "protein_g": 0,
+                "carbs_g": 0,
+                "fat_g": 0,
+                "water_cups": 0,
+                "water_target": 8
+            }
+
+    @staticmethod
+    def update_nutrition(user_id: str, date_str: str, nutrition: Dict[str, float]):
+        """Increment nutrition values for a day."""
+        with get_connection() as conn:
+            cursor = conn.cursor()
+            # Ensure it exists
+            DailyLogRepository.get_or_create(user_id, date_str)
+            
+            cursor.execute("""
+                UPDATE daily_logs SET
+                    calories_consumed = calories_consumed + ?,
+                    protein_g = protein_g + ?,
+                    carbs_g = carbs_g + ?,
+                    fat_g = fat_g + ?
+                WHERE user_id = ? AND date = ?
+            """, (
+                nutrition.get('calories', 0),
+                nutrition.get('protein_g', 0),
+                nutrition.get('carbs_g', 0),
+                nutrition.get('fat_g', 0),
+                user_id,
+                date_str
+            ))
+            conn.commit()
+
+    @staticmethod
+    def update_water(user_id: str, date_str: str, delta: int):
+        """Update water cups for a day."""
+        with get_connection() as conn:
+            cursor = conn.cursor()
+            DailyLogRepository.get_or_create(user_id, date_str)
+            cursor.execute("""
+                UPDATE daily_logs SET
+                    water_cups = MAX(0, water_cups + ?)
+                WHERE user_id = ? AND date = ?
+            """, (delta, user_id, date_str))
+            conn.commit()
+
+    @staticmethod
+    def log_exercise(user_id: str, date_str: str, calories: float):
+        """Record burned calories."""
+        with get_connection() as conn:
+            cursor = conn.cursor()
+            DailyLogRepository.get_or_create(user_id, date_str)
+            cursor.execute("""
+                UPDATE daily_logs SET
+                    calories_burned = calories_burned + ?
+                WHERE user_id = ? AND date = ?
+            """, (calories, user_id, date_str))
             conn.commit()
 
 

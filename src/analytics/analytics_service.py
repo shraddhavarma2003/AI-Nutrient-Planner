@@ -24,6 +24,7 @@ from models.analytics_models import (
     BehaviorPattern,
     AnalyticsSnapshot,
 )
+from auth.database import MealRepository, DailyLogRepository
 
 
 class MealLogStore:
@@ -60,11 +61,14 @@ class MealLogStore:
     def get_today(self, user_id: str) -> List[MealLogEntry]:
         """Get today's logs."""
         today = date.today()
+        # Fallback to DB if possible, or just return from memory if it's being populated
         return self.get_range(user_id, today, today)
     
     def clear(self, user_id: str):
         """Clear logs for a user."""
         self._logs[user_id] = []
+        # Also clear DB in production if needed
+        MealRepository.clear_meals(user_id)
 
 
 class AnalyticsService:
@@ -150,7 +154,23 @@ class AnalyticsService:
             violations=violations or [],
         )
         
+        # Persist to memory
         self.store.add(entry)
+        
+        # Persist to database
+        try:
+            for food in foods:
+                # Log each food as a meal for historical tracking
+                MealRepository.create(
+                    user_id=user_id,
+                    food_name=food.get("name", "Unknown Food"),
+                    nutrition=food, # The food dict already has calories, protein_g, etc.
+                    source="manual",
+                    timestamp=entry.timestamp
+                )
+        except Exception as e:
+            print(f"[Analytics] DB persistence error: {e}")
+            
         return entry
     
     def compute_daily_trends(
