@@ -7,6 +7,7 @@
     <title>AI Nutrition - App</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="theme.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         /* App Specific Styles */
         .mode-container {
@@ -184,27 +185,27 @@
 </head>
 
 <body>
+    <canvas id="bg-canvas"></canvas>
     <div class="app-shell">
-        <!-- Sidebar -->
         <nav class="sidebar">
             <div class="logo" onclick="location.href='index.html'">
                 <div class="logo-icon">🥗</div>
                 <h1>Nutrition<span>AI</span></h1>
             </div>
-
             <div class="nav-sections">
-                <a class="nav-item" href="dashboard.html"><i class="icon">🏠</i> Dashboard</a>
-                <a class="nav-item" href="dashboard.html"><i class="icon">📅</i> Weekly Plan</a>
-                <a class="nav-item" href="food-scan.html"><i class="icon">📸</i> Food Scan</a>
-                <a class="nav-item" href="upload.html"><i class="icon">📄</i> Reports</a>
-                <a class="nav-item" id="navRecipe" href="app.html?mode=recipe"><i class="icon">🍳</i> Recipes</a>
-                <a class="nav-item" id="navAnalyze" href="app.html?mode=analyze"><i class="icon">💬</i> Nutrient
-                    Chat</a>
+                <a class="nav-item" id="navDashboard" onclick="location.href='dashboard.html'"><i>📊</i> Dashboard</a>
+                <a class="nav-item" id="navPlan" onclick="location.href='dashboard.html?tab=meal-plan'"><i>📅</i> Weekly
+                    Plan</a>
+                <a class="nav-item" id="navScan" onclick="location.href='food-scan.html'"><i>📸</i> Food Scan</a>
+                <a class="nav-item" id="navReport" onclick="location.href='upload.html'"><i>📄</i> Reports</a>
+                <a class="nav-item active" id="navRecipe" onclick="location.href='app.html?mode=recipe'"><i>🍳</i>
+                    Recipes</a>
+                <a class="nav-item" id="navCoach" onclick="location.href='index.html'"><i>💬</i> Coach Chat</a>
             </div>
-
-            <div class="nav-footer">
-                <div class="nav-item" onclick="handleLogout()" style="color: var(--danger);">
-                    <i class="icon">🚪</i> Logout
+            <div class="sidebar-user" onclick="handleLogout()" style="margin-top: auto;">
+                <div class="avatar" id="avatarIcon">U</div>
+                <div class="user-info">
+                    <div class="name" id="userNameSide">User</div>
                 </div>
             </div>
         </nav>
@@ -292,10 +293,41 @@
         if (user) {
             try {
                 const userData = JSON.parse(user);
-                document.getElementById('userNameDisplay').textContent = userData.name || 'User';
-                document.querySelector('.avatar').textContent = (userData.name || 'U').charAt(0).toUpperCase();
+                const name = userData.name || 'User';
+                const initial = name.charAt(0).toUpperCase();
+
+                // Top Bar Profile
+                if (document.getElementById('userNameDisplay')) document.getElementById('userNameDisplay').textContent = name;
+                if (document.querySelector('.top-bar .avatar')) document.querySelector('.top-bar .avatar').textContent = initial;
+
+                // Sidebar Profile
+                if (document.getElementById('userNameSide')) document.getElementById('userNameSide').textContent = name;
+                if (document.getElementById('avatarIcon')) document.getElementById('avatarIcon').textContent = initial;
             } catch (e) { }
         }
+
+        async function fetchProfile() {
+            try {
+                const response = await fetch('/api/profile', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    const name = data.full_name || 'User';
+                    const initial = name.charAt(0).toUpperCase();
+
+                    // Top Bar Profile
+                    if (document.getElementById('userNameDisplay')) document.getElementById('userNameDisplay').textContent = name;
+                    if (document.querySelector('.top-bar .avatar')) document.querySelector('.top-bar .avatar').textContent = initial;
+
+                    // Sidebar Profile
+                    if (document.getElementById('userNameSide')) document.getElementById('userNameSide').textContent = name;
+                    if (document.getElementById('avatarIcon')) document.getElementById('avatarIcon').textContent = initial;
+                }
+            } catch (e) { console.error("Profile load failed", e); }
+        }
+
+        fetchProfile();
 
         function handleLogout() {
             localStorage.removeItem('token');
@@ -314,11 +346,11 @@
 
             if (activeMode === 'recipe') {
                 document.getElementById('mode-recipe').classList.add('active');
-                document.getElementById('navRecipe').classList.add('active');
+                if (document.getElementById('navRecipe')) document.getElementById('navRecipe').classList.add('active');
                 document.getElementById('pageTitle').textContent = 'Recipe Generator';
             } else {
                 document.getElementById('mode-analyze').classList.add('active');
-                document.getElementById('navAnalyze').classList.add('active');
+                // The analyze mode in app.html is fallback, but let's keep consistency
                 document.getElementById('pageTitle').textContent = 'Nutrient Chat';
             }
         }
@@ -441,6 +473,50 @@
                 appendMessage("Network error. Please check your connection.", 'bot');
             }
         }
+        // Particle Background Logic
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let w, h, particles = [];
+
+        function initBG() {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+            particles = [];
+            for (let i = 0; i < 40; i++) {
+                particles.push({
+                    x: Math.random() * w,
+                    y: Math.random() * h,
+                    size: Math.random() * 2 + 1,
+                    speedX: Math.random() * 0.5 - 0.25,
+                    speedY: Math.random() * 0.5 - 0.25
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, w, h);
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.1)';
+                particles.forEach(p => {
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+                    if (p.x < 0) p.x = w;
+                    if (p.x > w) p.x = 0;
+                    if (p.y < 0) p.y = h;
+                    if (p.y > h) p.y = 0;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        window.addEventListener('resize', () => {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+        });
+
+        initBG();
     </script>
 </body>
 

@@ -39,7 +39,6 @@ body {
     background: var(--bg);
     color: var(--text-main);
     min-height: 100vh;
-    /* Removed display: flex and overflow: hidden to fix auth pages */
 }
 
 #bg-canvas {
@@ -61,7 +60,6 @@ body {
     position: relative;
     z-index: 1;
     overflow: hidden;
-    /* Added to constrain sidebar layout */
 }
 
 /* Fixed Sidebar */
@@ -193,12 +191,28 @@ body {
     transform: translateY(-2px);
 }
 
-.user-profile {
+/* Sidebar specific profile (Full-width row) */
+.sidebar-user {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 4px;
-    padding-right: 16px;
+    padding: 16px 20px;
+    margin-top: auto;
+    cursor: pointer;
+    border-top: 1px solid var(--border);
+    transition: var(--transition);
+}
+
+.sidebar-user:hover {
+    background: var(--primary-soft);
+}
+
+/* Header Action Profile (Pill/Chip style) */
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 16px;
     background: white;
     border: 1px solid var(--border);
     border-radius: 100px;
@@ -208,6 +222,7 @@ body {
 
 .user-profile:hover {
     box-shadow: var(--shadow-md);
+    border-color: var(--primary);
 }
 
 .avatar {
@@ -226,6 +241,7 @@ body {
 .user-info .name {
     font-size: 14px;
     font-weight: 600;
+    color: var(--text-main);
 }
 
 /* Dashboard Content Grid */

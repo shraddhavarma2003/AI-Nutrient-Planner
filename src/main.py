@@ -1087,7 +1087,7 @@ async def submit_feedback(request: FeedbackRequest, user: dict = Depends(get_cur
 @app.get("/api/user/profile")
 async def get_user_profile_legacy(user: dict = Depends(get_current_user)):
     """Legacy endpoint - redirects to /api/profile"""
-    return await get_profile(user)
+    return await get_medical_profile(user)
 
 
 # =============================================================================
@@ -1674,7 +1674,7 @@ def _load_food_database():
 FOOD_DATABASE = _load_food_database()
 
 
-@app.post("/api/food/upload")
+@app.post("/api/food/scan")
 async def upload_food_image(
     file: UploadFile = File(...),
     user: dict = Depends(get_current_user),

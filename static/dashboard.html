@@ -1061,21 +1061,18 @@
                 <div class="logo-icon">🥗</div>
                 <h1>Nutrition<span>AI</span></h1>
             </div>
-
             <div class="nav-sections">
-                <a class="nav-item active" id="navDashboard" onclick="switchTab('dashboard')"><i class="icon">🏠</i>
-                    Dashboard</a>
-                <a class="nav-item" id="navPlan" onclick="switchTab('meal-plan')"><i class="icon">📅</i> Weekly Plan</a>
-                <a class="nav-item" onclick="location.href='food-scan.html'"><i class="icon">📸</i> Food Scan</a>
-                <a class="nav-item" onclick="location.href='upload.html'"><i class="icon">📄</i> Reports</a>
-                <a class="nav-item" onclick="location.href='app.html?mode=recipe'"><i class="icon">🍳</i> Recipes</a>
-                <a class="nav-item" onclick="location.href='app.html?mode=analyze'"><i class="icon">💬</i> Nutrient
-                    Chat</a>
+                <a class="nav-item active" id="navDashboard" onclick="switchTab('dashboard')"><i>📊</i> Dashboard</a>
+                <a class="nav-item" id="navPlan" onclick="switchTab('meal-plan')"><i>📅</i> Weekly Plan</a>
+                <a class="nav-item" id="navScan" onclick="location.href='food-scan.html'"><i>📸</i> Food Scan</a>
+                <a class="nav-item" id="navReport" onclick="location.href='upload.html'"><i>📄</i> Reports</a>
+                <a class="nav-item" id="navRecipe" onclick="location.href='app.html?mode=recipe'"><i>🍳</i> Recipes</a>
+                <a class="nav-item" id="navCoach" onclick="location.href='index.html'"><i>💬</i> Coach Chat</a>
             </div>
-
-            <div class="nav-footer">
-                <div class="nav-item" onclick="handleLogout()" style="color: var(--danger);">
-                    <i class="icon">🚪</i> Logout
+            <div class="sidebar-user" onclick="handleLogout()" style="margin-top: auto;">
+                <div class="avatar" id="avatarIcon">U</div>
+                <div class="user-info">
+                    <div class="name" id="userNameSide">User</div>
                 </div>
             </div>
         </nav>
@@ -1295,7 +1292,7 @@
                         </div>
                         <div class="card action-card" onclick="location.href='app.html?mode=analyze'">
                             <span class="icon">📊</span>
-                            <h3>Full Insights</h3>
+                            <h3>Nutrition Analysis</h3>
                             <p>Deep dive into your nutritional trends and statistics.</p>
                             <span class="btn-link">View Stats →</span>
                         </div>
@@ -1445,8 +1442,11 @@
         if (!token) window.location.href = 'login.html';
 
         const userName = localStorage.getItem('user_name') || 'User';
-        document.getElementById('userName').textContent = userName;
-        document.getElementById('userAvatar').textContent = userName.charAt(0).toUpperCase();
+        const userInitial = userName.charAt(0).toUpperCase();
+        if (document.getElementById('userName')) document.getElementById('userName').textContent = userName;
+        if (document.getElementById('userAvatar')) document.getElementById('userAvatar').textContent = userInitial;
+        if (document.getElementById('userNameSide')) document.getElementById('userNameSide').textContent = userName;
+        if (document.getElementById('avatarIcon')) document.getElementById('avatarIcon').textContent = userInitial;
 
         async function handleLogout() {
             try {
@@ -1468,6 +1468,12 @@
                 if (!response.ok) { window.location.href = 'setup-profile.html'; return; }
                 const data = await response.json();
                 userProfile = data;
+                const name = data.full_name || userName;
+                const initial = name.charAt(0).toUpperCase();
+                if (document.getElementById('userNameSide')) document.getElementById('userNameSide').textContent = name;
+                if (document.getElementById('avatarIcon')) document.getElementById('avatarIcon').textContent = initial;
+                if (document.getElementById('userName')) document.getElementById('userName').textContent = name;
+                if (document.getElementById('userAvatar')) document.getElementById('userAvatar').textContent = initial;
                 updateProfileUI(data);
                 document.getElementById('dashboardDatePicker').value = selectedDate;
                 loadDashboardData();
@@ -1792,51 +1798,50 @@
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
-        // Particles
-        const canvas = document.getElementById('bg-canvas');
-        const ctx = canvas.getContext('2d');
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        resize();
-        window.addEventListener('resize', resize);
-        const mouse = { x: null, y: null, radius: 100 };
-        window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
-        const colors = ['rgba(16, 185, 129, 0.4)', 'rgba(59, 130, 246, 0.3)', 'rgba(167, 243, 208, 0.5)'];
-        class P {
-            constructor() {
-                this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
-                this.bx = this.x; this.by = this.y;
-                this.size = Math.random() * 2 + 1;
-                this.sx = (Math.random() - 0.5) * 0.2; this.sy = (Math.random() - 0.5) * 0.2;
-                this.c = colors[Math.floor(Math.random() * colors.length)];
-                this.dist = Math.random() * 30 + 1;
+        // Particle Background Logic
+        function initBG() {
+            const canvas = document.getElementById('bg-canvas');
+            const ctx = canvas.getContext('2d');
+            let w, h, ps = [];
+
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+            ps = [];
+            for (let i = 0; i < 40; i++) {
+                ps.push({
+                    x: Math.random() * w,
+                    y: Math.random() * h,
+                    size: Math.random() * 2 + 1,
+                    speedX: Math.random() * 0.5 - 0.25,
+                    speedY: Math.random() * 0.5 - 0.25
+                });
             }
-            update() {
-                if (mouse.x) {
-                    const dx = mouse.x - this.x, dy = mouse.y - this.y;
-                    const d = Math.sqrt(dx * dx + dy * dy);
-                    if (d < mouse.radius) {
-                        const f = (mouse.radius - d) / mouse.radius;
-                        this.x -= (dx / d) * f * 1.5; this.y -= (dy / d) * f * 1.5;
-                    }
-                }
-                this.x += this.sx; this.y += this.sy;
-                this.x += (this.bx - this.x) * 0.008; this.y += (this.by - this.y) * 0.008;
-            }
-            draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = this.c; ctx.fill(); }
-        }
-        const ps = []; for (let i = 0; i < 50; i++) ps.push(new P());
-        function anim() {
-            try {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ps.forEach(p => { p.update(); p.draw(); });
+
+            function anim() {
+                ctx.clearRect(0, 0, w, h);
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.1)';
+                ps.forEach(p => {
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+                    if (p.x < 0) p.x = w;
+                    if (p.x > w) p.x = 0;
+                    if (p.y < 0) p.y = h;
+                    if (p.y > h) p.y = 0;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
                 requestAnimationFrame(anim);
-            } catch (e) {
-                console.error("Animation error:", e);
             }
+
+            window.addEventListener('resize', () => {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+            });
+
+            anim();
         }
-        // Move init inside DOMContentLoaded to ensure safety, but keep anim separate if needed.
-        // Better to just start it safely.
-        anim();
+        initBG();
 
         // Multi-Tab Logic
         function switchTab(tab) {
@@ -2022,6 +2027,13 @@
             initWaterReminders();
             loadProfile();
             loadPredictions();
+
+            // Handle URL tab parameters
+            const params = new URLSearchParams(window.location.search);
+            const tab = params.get('tab');
+            if (tab === 'meal-plan') {
+                switchTab('meal-plan');
+            }
         });
     </script>
 </body>

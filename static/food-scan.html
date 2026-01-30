@@ -91,16 +91,18 @@
                 <h1>Nutrition<span>AI</span></h1>
             </div>
             <div class="nav-sections">
-                <a class="nav-item" onclick="location.href='index.html'"><i>💬</i> Coach Chat</a>
-                <a class="nav-item" onclick="location.href='dashboard.html'"><i>📊</i> Dashboard</a>
-                <a class="nav-item active" onclick="location.href='food-scan.html'"><i>📸</i> Food Scan</a>
-                <a class="nav-item" onclick="location.href='upload.html'"><i>📄</i> Reports</a>
-                <a class="nav-item" onclick="location.href='app.html?mode=recipe'"><i>🍳</i> Recipes</a>
+                <a class="nav-item" id="navDashboard" onclick="location.href='dashboard.html'"><i>📊</i> Dashboard</a>
+                <a class="nav-item" id="navPlan" onclick="location.href='dashboard.html?tab=meal-plan'"><i>📅</i> Weekly
+                    Plan</a>
+                <a class="nav-item active" id="navScan" onclick="location.href='food-scan.html'"><i>📸</i> Food Scan</a>
+                <a class="nav-item" id="navReport" onclick="location.href='upload.html'"><i>📄</i> Reports</a>
+                <a class="nav-item" id="navRecipe" onclick="location.href='app.html?mode=recipe'"><i>🍳</i> Recipes</a>
+                <a class="nav-item" id="navCoach" onclick="location.href='index.html'"><i>💬</i> Coach Chat</a>
             </div>
-            <div class="user-profile" onclick="handleLogout()" style="margin-top: auto;">
-                <div class="avatar">U</div>
+            <div class="sidebar-user" onclick="handleLogout()" style="margin-top: auto;">
+                <div class="avatar" id="avatarIcon">U</div>
                 <div class="user-info">
-                    <div class="name">User</div>
+                    <div class="name" id="userNameSide">User</div>
                 </div>
             </div>
         </nav>
@@ -157,7 +159,7 @@
                         <div id="nutritionInfo"></div>
                         <div class="mt-4" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                             <button class="btn btn-secondary" onclick="location.reload()">Scan Another</button>
-                            <button class="btn btn-primary" onclick="location.href='index.html'">Add to Logs</button>
+                            <button class="btn btn-primary" onclick="location.href='index.html'">AI Coach</button>
                         </div>
                     </div>
                 </div>
@@ -241,19 +243,112 @@
         };
 
         function renderResults(data) {
-            document.getElementById('foodName').textContent = data.food_name || 'Detected Dish';
-            // Simple render for now - can be expanded
-            document.getElementById('nutritionInfo').innerHTML = `
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px;">
+            const foodName = document.getElementById('foodName');
+            const safetyBadge = document.getElementById('safetyBadge');
+            const nutritionInfo = document.getElementById('nutritionInfo');
+
+            foodName.textContent = data.food_name || 'Detected Dish';
+
+            // Handle Safety Badge
+            const verdict = data.safety?.verdict || 'safe';
+            safetyBadge.textContent = verdict.toUpperCase();
+            safetyBadge.className = `status-badge ${verdict}`;
+
+            // Nutritional Data (fix mismatch nutrients -> nutrition)
+            const n = data.nutrition || {};
+
+            nutritionInfo.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 24px;">
+                    <!-- Primary: Calories -->
+                    <div class="card text-center" style="grid-column: span 2; background: var(--primary-soft); border-color: var(--primary);">
+                        <div style="font-size: 32px; font-weight: 800; color: var(--primary-dark);">${n.calories || 0}</div>
+                        <div class="text-muted" style="font-size: 12px; font-weight: 600;">CALORIES (KCAL)</div>
+                    </div>
+
+                    <!-- Macros -->
                     <div class="card text-center">
-                        <div style="font-size: 20px; font-weight: 700;">${data.nutrients?.calories || 0}</div>
-                        <div class="text-muted" style="font-size: 11px;">KCAL</div>
+                        <div style="font-size: 18px; font-weight: 700;">${n.protein_g || 0}g</div>
+                        <div class="text-muted" style="font-size: 11px;">PROTEIN</div>
+                    </div>
+                    <div class="card text-center">
+                        <div style="font-size: 18px; font-weight: 700;">${n.carbs_g || 0}g</div>
+                        <div class="text-muted" style="font-size: 11px;">CARBS</div>
+                    </div>
+                    <div class="card text-center">
+                        <div style="font-size: 18px; font-weight: 700;">${n.fat_g || 0}g</div>
+                        <div class="text-muted" style="font-size: 11px;">FAT</div>
+                    </div>
+                    <div class="card text-center">
+                        <div style="font-size: 18px; font-weight: 700;">${n.fiber_g || 0}g</div>
+                        <div class="text-muted" style="font-size: 11px;">FIBER</div>
+                    </div>
+
+                    <!-- Micros/Warnings -->
+                    <div class="card text-center">
+                        <div style="font-size: 18px; font-weight: 700;">${n.sugar_g || 0}g</div>
+                        <div class="text-muted" style="font-size: 11px;">SUGAR</div>
+                    </div>
+                    <div class="card text-center">
+                        <div style="font-size: 18px; font-weight: 700;">${n.sodium_mg || 0}mg</div>
+                        <div class="text-muted" style="font-size: 11px;">SODIUM</div>
                     </div>
                 </div>
+
+                ${data.safety?.violations?.length ? `
+                    <div style="margin-top: 24px; padding: 16px; background: #fff5f5; border-radius: 12px; border: 1px solid #feb2b2;">
+                        <div style="color: #c53030; font-weight: 700; font-size: 14px; margin-bottom: 8px;">⚠️ Health Considerations:</div>
+                        <ul style="margin: 0; padding-left: 20px; color: #742a2a; font-size: 13px;">
+                            ${data.safety.violations.map(v => `<li style="margin-bottom: 4px;">${v.message}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
             `;
         }
 
-        // Particle background code omitted for brevity but standard logic applies
+        // Particle Background Logic
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let w, h, particles = [];
+
+        function initBG() {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+            particles = [];
+            for (let i = 0; i < 40; i++) {
+                particles.push({
+                    x: Math.random() * w,
+                    y: Math.random() * h,
+                    size: Math.random() * 2 + 1,
+                    speedX: Math.random() * 0.5 - 0.25,
+                    speedY: Math.random() * 0.5 - 0.25
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, w, h);
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.1)';
+                particles.forEach(p => {
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+                    if (p.x < 0) p.x = w;
+                    if (p.x > w) p.x = 0;
+                    if (p.y < 0) p.y = h;
+                    if (p.y > h) p.y = 0;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        window.addEventListener('resize', () => {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+        });
+
+        initBG();
     </script>
 </body>
 

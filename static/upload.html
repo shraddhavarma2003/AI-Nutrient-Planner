@@ -7,6 +7,7 @@
     <title>Upload Medical Report - AI Nutrition</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="theme.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         /* Specific Styles for Upload Page (extending theme) */
         .upload-card {
@@ -221,26 +222,26 @@
 </head>
 
 <body>
+    <canvas id="bg-canvas"></canvas>
     <div class="app-shell">
-        <!-- Sidebar -->
         <nav class="sidebar">
             <div class="logo" onclick="location.href='index.html'">
                 <div class="logo-icon">🥗</div>
                 <h1>Nutrition<span>AI</span></h1>
             </div>
-
             <div class="nav-sections">
-                <a class="nav-item" href="dashboard.html"><i class="icon">🏠</i> Dashboard</a>
-                <a class="nav-item" href="dashboard.html"><i class="icon">📅</i> Weekly Plan</a>
-                <a class="nav-item" href="food-scan.html"><i class="icon">📸</i> Food Scan</a>
-                <a class="nav-item active" href="upload.html"><i class="icon">📄</i> Reports</a>
-                <a class="nav-item" href="app.html?mode=recipe"><i class="icon">🍳</i> Recipes</a>
-                <a class="nav-item" href="app.html?mode=analyze"><i class="icon">💬</i> Nutrient Chat</a>
+                <a class="nav-item" id="navDashboard" onclick="location.href='dashboard.html'"><i>📊</i> Dashboard</a>
+                <a class="nav-item" id="navPlan" onclick="location.href='dashboard.html?tab=meal-plan'"><i>📅</i> Weekly
+                    Plan</a>
+                <a class="nav-item" id="navScan" onclick="location.href='food-scan.html'"><i>📸</i> Food Scan</a>
+                <a class="nav-item active" id="navReport" onclick="location.href='upload.html'"><i>📄</i> Reports</a>
+                <a class="nav-item" id="navRecipe" onclick="location.href='app.html?mode=recipe'"><i>🍳</i> Recipes</a>
+                <a class="nav-item" id="navCoach" onclick="location.href='index.html'"><i>💬</i> Coach Chat</a>
             </div>
-
-            <div class="nav-footer">
-                <div class="nav-item" onclick="handleLogout()" style="color: var(--danger);">
-                    <i class="icon">🚪</i> Logout
+            <div class="sidebar-user" onclick="handleLogout()" style="margin-top: auto;">
+                <div class="avatar" id="avatarIcon">U</div>
+                <div class="user-info">
+                    <div class="name" id="userNameSide">User</div>
                 </div>
             </div>
         </nav>
@@ -331,8 +332,16 @@
         if (user) {
             try {
                 const userData = JSON.parse(user);
-                document.getElementById('userNameDisplay').textContent = userData.name || 'User';
-                document.querySelector('.avatar').textContent = (userData.name || 'U').charAt(0).toUpperCase();
+                const name = userData.name || 'User';
+                const initial = name.charAt(0).toUpperCase();
+
+                // Top Bar Profile
+                if (document.getElementById('userNameDisplay')) document.getElementById('userNameDisplay').textContent = name;
+                if (document.querySelector('.top-bar .avatar')) document.querySelector('.top-bar .avatar').textContent = initial;
+
+                // Sidebar Profile
+                if (document.getElementById('userNameSide')) document.getElementById('userNameSide').textContent = name;
+                if (document.getElementById('avatarIcon')) document.getElementById('avatarIcon').textContent = initial;
             } catch (e) { }
         }
 
@@ -496,6 +505,50 @@
                 }
             }
         });
+        // Particle Background Logic
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let w, h, particles = [];
+
+        function initBG() {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+            particles = [];
+            for (let i = 0; i < 40; i++) {
+                particles.push({
+                    x: Math.random() * w,
+                    y: Math.random() * h,
+                    size: Math.random() * 2 + 1,
+                    speedX: Math.random() * 0.5 - 0.25,
+                    speedY: Math.random() * 0.5 - 0.25
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, w, h);
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.1)';
+                particles.forEach(p => {
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+                    if (p.x < 0) p.x = w;
+                    if (p.x > w) p.x = 0;
+                    if (p.y < 0) p.y = h;
+                    if (p.y > h) p.y = 0;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        window.addEventListener('resize', () => {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+        });
+
+        initBG();
     </script>
 </body>
 
