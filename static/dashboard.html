@@ -1644,17 +1644,9 @@
             const statRows = document.getElementById('statsContent');
             if (statRows) {
                 statRows.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--border);">
+                    <div style="display: flex; justify-content: space-between; padding-bottom: 8px;">
                         <span style="font-size: 13px; color: var(--text-muted);">Meals Logged</span>
                         <span style="font-weight: 700;" id="mealsCount">${mealsCount}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border);">
-                        <span style="font-size: 13px; color: var(--text-muted);">Burnt</span>
-                        <span style="font-weight: 700;">${Math.round(stats.calories_burned || 0)} kcal</span>
-                    </div>
-                     <div style="display: flex; justify-content: space-between; padding-top: 8px;">
-                        <span style="font-size: 13px; color: var(--text-muted);">Hydration</span>
-                        <span style="font-weight: 700;">${stats.water_cups || 0} Cups</span>
                     </div>
                 `;
             }

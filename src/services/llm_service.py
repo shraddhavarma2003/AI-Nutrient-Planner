@@ -381,13 +381,31 @@ Be specific and practical."""
         Returns:
             LLMResponse with the generated recipe.
         """
+        import random
+        styles = [
+            "Mediterranean style", 
+            "Asian fusion", 
+            "Quick & Easy (under 20 mins)", 
+            "Comfort food (but healthy)", 
+            "Zesty & Spicy", 
+            "Herb-infused & Aromatic",
+            "Minimalist (5 ingredients or less)",
+            "Protein-packed",
+            "Hearty & Filling"
+        ]
+        chosen_style = random.choice(styles)
+        
         context = {
             "Ingredients available": ", ".join(ingredients),
             "Health Conditions": ", ".join(user_profile.get("conditions", [])),
-            "Allergens to avoid": ", ".join(user_profile.get("allergens", []))
+            "Allergens to avoid": ", ".join(user_profile.get("allergens", [])),
+            "Suggested Style": chosen_style
         }
         
-        prompt = f"Create a healthy recipe using these ingredients: {', '.join(ingredients)}. "
+        prompt = f"Create a simple and delicious **{chosen_style}** recipe using **ONLY** these provided ingredients: {', '.join(ingredients)}. "
+        prompt += "You may ONLY add basic pantry staples (oil, salt, pepper, water, common spices/herbs). "
+        prompt += "DO NOT include any other main ingredients (like meats, vegetables, grains, or dairy) unless they are explicitly listed above. "
+        prompt += "If the ingredients are too few, create a simple dish that highlights them. "
         prompt += "Ensure it is safe given the user's health profile."
         
         return self.chat(prompt, system_prompt="recipe_creator", context=context)

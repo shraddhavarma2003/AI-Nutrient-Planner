@@ -340,7 +340,11 @@ async def chat(request: ChatRequest, user: dict = Depends(get_current_user)):
         user_id = user["sub"]
         
         # Retrieve recent meal logs for context
-        user_meal_logs = meal_log_store.get_recent_logs(user_id, limit=5)
+        # Convert MealLogEntry objects to dicts for RAG service compatibility
+        all_logs = meal_log_store.get_by_user(user_id)
+        user_meal_logs = {
+            user_id: [log.to_dict() for log in all_logs]
+        }
         
         # =====================================================
         # RAG STEP 1: RETRIEVAL - Auto-fetch food context
@@ -408,33 +412,55 @@ async def chat(request: ChatRequest, user: dict = Depends(get_current_user)):
         # =====================================================
         # RAG STEP 3: GENERATION - Use Ollama/Gemma with RAG context
         # =====================================================
+        # =====================================================
+        # RAG STEP 3: GENERATION - Use Ollama/Gemma with RAG context
+        # =====================================================
         llm_service = get_llm_service()
-        rag_service = get_rag_service()
         
-        # Build comprehensive RAG context from user data
-        rag_context = rag_service.build_context(
-            user_id=user_id,
-            meal_logs=user_meal_logs,
-            current_food=food_data,
-            user_question=request.message
-        )
-        print(f"[RAG] Built context: {len(rag_context)} chars")
+        rag_context = ""
+        rag_service = None
+        user_profile_data = None
+        
+        try:
+            rag_service = get_rag_service()
+            # Build comprehensive RAG context from user data
+            rag_context = rag_service.build_context(
+                user_id=user_id,
+                meal_logs=user_meal_logs,
+                current_food=food_data,
+                user_question=request.message
+            )
+            print(f"[RAG] Built context: {len(rag_context)} chars")
+            
+            # Cache profile data for later use to avoid re-fetching
+            user_profile_data = rag_service.get_medical_profile(user_id)
+            
+        except Exception as e:
+            print(f"[Coach] RAG Service warning (continuing without RAG): {e}")
+            import traceback
+            traceback.print_exc()
         
         # Try LLM-powered response if available
+        llm_response = None
         if llm_service.is_available:
             print(f"[Coach] LLM is available, calling chat...")
-            llm_response = llm_service.chat(
-                prompt=request.message,
-                system_prompt="nutrition_coach",
-                rag_context=rag_context
-            )
+            try:
+                llm_response = llm_service.chat(
+                    prompt=request.message,
+                    system_prompt="nutrition_coach",
+                    rag_context=rag_context
+                )
+            except Exception as e:
+                print(f"[Coach] LLM chat failed: {e}")
+                llm_response = None
             
-            if llm_response.success:
+            if llm_response and llm_response.success:
                 print(f"[Coach] Using Ollama/Gemma LLM with RAG context")
                 
                 # Get user profile data to show in response
-                profile = rag_service.get_medical_profile(user_id)
                 profile_header = ""
+                profile = user_profile_data
+                
                 if profile and (profile.get('conditions') or profile.get('allergens')):
                     profile_header = "📋 **Your Health Profile:**\n"
                     if profile.get('conditions'):
@@ -453,12 +479,18 @@ async def chat(request: ChatRequest, user: dict = Depends(get_current_user)):
                 if food:
                     from rules.engine import RuleEngine
                     rule_engine_local = RuleEngine()
-                    user_profile = get_user_profile_for_rules(user_id)
-                    rule_violations = rule_engine_local.evaluate(food, user_profile)
-                    violations = [v.to_dict() for v in rule_violations]
-                    verdict = rule_engine_local.get_final_verdict(rule_violations)
-                    safety_level = verdict.value
-                
+                    
+                    try:
+                         # get_user_profile_for_rules is defined in global scope of main.py
+                         user_profile = get_user_profile_for_rules(user_id)
+                         
+                         rule_violations = rule_engine_local.evaluate(food, user_profile)
+                         violations = [v.to_dict() for v in rule_violations]
+                         verdict = rule_engine_local.get_final_verdict(rule_violations)
+                         safety_level = verdict.value
+                    except Exception as e:
+                         print(f"[Coach] Rule engine warning: {e}")
+
                 return ChatResponse(
                     message=profile_header + llm_response.content,
                     safety_level=safety_level,
@@ -467,12 +499,16 @@ async def chat(request: ChatRequest, user: dict = Depends(get_current_user)):
                     suggestions=[{"type": "llm_powered", "source": "ollama_gemma", "rag_enabled": True}],
                 )
             else:
-                print(f"[Coach] LLM response failed: {llm_response.error}")
+                if llm_response:
+                    print(f"[Coach] LLM response failed: {llm_response.error}")
         else:
             print(f"[Coach] LLM service not available, using fallback")
         
         # Fallback to original rule-based coach - STILL SHOW PROFILE DATA
-        profile = rag_service.get_medical_profile(user_id)
+        profile = user_profile_data
+        # If accessing rag_service failed earlier, user_profile_data is None. Try one more time strictly for profile?
+        # Or just use empty.
+        
         profile_header = ""
         if profile and (profile.get('conditions') or profile.get('allergens')):
             profile_header = "📋 **Your Health Profile:**\n"
